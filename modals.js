@@ -1,3 +1,17 @@
+/**
+ * Pure JS Modals
+ * Loosely inspired by: https://dribbble.com/shots/15544255-Modals-collection/attachments/7325650?mode=media
+ */
+
+
+// Color Palette
+const PALETTE = {
+  GRAY_0: '#efefef',
+  PURPLE_0: '#8139ec',
+  WHITE: '#ffffff'
+};
+
+// Util
 const _ = {
   addEvents: (el, obj) => {
     Object.keys(obj).forEach(key => {
@@ -22,13 +36,22 @@ const _ = {
     });
     return arr.join(' ');
   },
+  // num => number
+  // @returns => str
   num2Px: num => `${num}px`,
   render: {
-    btn: ({modalProps, label, color}) => {
+    btn: ({ modalProps, label, color, style }) => {
+
+      console.log('render btn', style);
       const structure = {
         style: {
           background: color,
-          color: '#ffffff'
+          color: PALETTE.WHITE,
+          padding: '20px',
+          borderRadius: '6px',
+          border: 'none',
+          whiteSpace: 'nowrap',
+          ...style
         },
         type: 'button',
         children: [label],
@@ -67,7 +90,7 @@ const _ = {
     },
     btnClose: () => {
       const size = 16;
-      const color = '#ffffff';
+      const color = PALETTE.WHITE;
       const colorKey = '--close-color';
 
       return Spawn({
@@ -122,7 +145,7 @@ const _ = {
       const { color, onClose, label } = props;
       return Spawn({
         style: {
-          background: '#ffffff',
+          background: PALETTE.WHITE,
           width: '400px',
           height: '250px',
           borderRadius: '4px'
@@ -136,7 +159,7 @@ const _ = {
               height: '30px',
               alignItems: 'center',
               padding: '0 10px',
-              color: '#ffffff',
+              color: PALETTE.WHITE,
               borderRadius: '4px 4px 0 0'
             },
             children: [
@@ -163,6 +186,47 @@ const _ = {
   }
 };
 
+// DOM Util
+const DOM_UTIL = {
+  addHorizontalSpacing: (children, {
+    spacing = 30,
+    render
+  }) => {
+    return children.map((child, i) => {
+
+      console.log('addHorizontalSpacing', child);
+      let node = child;
+      if (i) {
+        node = {
+          ...child,
+          style: {
+            ...child.style,
+            marginLeft: _.num2Px(spacing)
+          }
+        }
+      }
+
+      // return child;
+
+      if (render) {
+        return () => render(node);
+      }
+
+      return node;
+    })
+
+    // return {
+
+    // }
+  }
+};
+
+/**
+ * DOM Generator
+ * @param {*} structure
+ * @param {*} i
+ * @returns
+ */
 const Spawn = (structure = {}, i = 0) => {
   if (typeof structure === 'string') {
     return document.createTextNode(structure);
@@ -179,11 +243,14 @@ const Spawn = (structure = {}, i = 0) => {
     events = {}
   } = structure;
 
+  // console.log('Spawn', children);
+
   const el = document.createElement(type);
   children.forEach(child => {
     el.appendChild(Spawn(child, i + 1));
   });
 
+  // Add Style Obj
   el.setAttribute('style', _.getStyle(style));
 
   _.addEvents(el, events);
@@ -210,38 +277,41 @@ class MyApp {
             justifyContent: 'space-between',
             width: '350px'
           },
-          children: [
-            () => _.render.btn({
+          children: DOM_UTIL.addHorizontalSpacing([
+            {
               label: 'Show Modal 1',
-              color: '#8139ec',
+              color: PALETTE.PURPLE_0,
               modalProps: {
                 color: '#8139ec',
                 label: 'Modal 1'
               }
-            }),
-            () => _.render.btn({
+            },
+            {
               label: 'Show Modal 2',
               color: '#ec6239',
               modalProps: {
                 color: '#ec6239',
                 label: 'Modal 2'
               }
-            }),
-            () => _.render.btn({
+            },
+            {
               label: 'Show Modal 3',
               color: '#ec3939',
               modalProps: {
                 color: '#ec3939',
                 label: 'Modal 3'
               }
-            })
-          ]
+            }
+          ], {
+            render: _.render.btn
+          })
         }
       ]
     };
 
+    // Mount to root
     document.body.append(Spawn(structure));
-    document.body.setAttribute('style', 'background: #3c3c3c');
+    document.body.setAttribute('style', `background: ${PALETTE.GRAY_0}`);
   }
 }
 
