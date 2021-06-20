@@ -1,3 +1,22 @@
+/**
+ * JS Calculator
+ *
+ * Objectives/Constraints:
+ *  - Easy Import and Customize into any App
+ *  - Single JS file src
+ *  - No External Libraries
+ *
+ * Functionality:
+ *  - Math calculator with nested level computation
+ *
+ * References:
+ *  UI Design {author} : https://dribbble.com/shots/6144137-Calculator-App-iOS-13/attachments/6144137-Calculator-App-iOS-13?mode=media
+ *  CodePen: https://codepen.io/anthonykoch/pen/xVQOwb?editors=0010
+ *   adsd : https://www.freecodecamp.org/news/how-to-build-an-html-calculator-app-from-scratch-using-javascript-4454b8714b98/
+ */
+
+
+
 // !! Keep entire file as single for Codepen
 
 // TODO
@@ -20,6 +39,7 @@ const COLOR_PALETTE = {
   GREEN: '#5bce09'
 };
 
+// Arithmic Operators
 const OPERATOR = {
   ADD: '+',
   SUBTRACT: '-',
@@ -267,6 +287,8 @@ class Calculator {
     return arr.join('');
   }
 
+  // input arr
+  // return arr
   getLastChain(chain) {
     const lastItem = chain[chain.length-1];
 
@@ -279,9 +301,7 @@ class Calculator {
 
   // return number
   getTotal(arr) {
-
-
-    const f = this.computeInputChain(arr);
+    // const f = this.computeInputChain(arr);
     // console.log('f', f);
 
     let total = 0;
@@ -557,7 +577,7 @@ class Calculator {
 
 
     // return number
-   getComputeChain(arr, cb) {
+  getComputeChain(arr, cb) {
     const lastItem = arr[arr.length -1];
     const more = Array.isArray(lastItem);
     if (more) {
@@ -633,7 +653,6 @@ class Calculator {
 
   }
 }
-
 
 class App {
   constructor(props) {
