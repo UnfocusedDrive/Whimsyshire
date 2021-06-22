@@ -1,6 +1,6 @@
 
 // NEXT: Depth Chain cursor for arr group!!!
-// compute input chains...
+// compute input chains... Arr must match correct nested level
 // go for scenario defaultInput2
 
 // Arithmic Operators
@@ -10,6 +10,31 @@ const OPERATOR = {
   MULTIPY: '*',
   DIVIDE: '/'
 };
+
+const additionalOperators = ['+', '5', '+', '32', '+', '(', '5'];
+// Pre tests
+const ts = [
+  {
+    input: '0+(12+(2+(3+(1+7',
+    output: 25
+  },
+  {
+    input: '0+(1+(2+(3+(1+9))))',
+    output: 16
+  }
+];
+
+// Merge pre tests with additional operators
+const tests = [
+  ...ts,
+  ...ts.map(t => {
+    return {
+      ...t,
+      extra: additionalOperators,
+      output: t.output + 42
+    }
+  })
+]
 
 
 const defaultInput2 = '0+(12+(2+(3+(1+7'; // cursor at last chain
@@ -38,9 +63,8 @@ const defaultInput3 = '0+(1+(2+(3+(1+9))))'; // cursor at level 0 depth
 //     ]
 //   ]
 // ];
-const flows = ['+', '5', '+', '32', '+', '(', '5'];
 
-const expectedVal = 67;
+// const expectedVal = 67;
 
 
   // input => str
@@ -79,11 +103,15 @@ const expectedVal = 67;
 
         return this.getTotal(arr);
       },
-      // ops => arr
+      // input => str
+      // [ops] => arr
       // @returns str
-      getMergedOps: (inp, ops) => {
+      getMergedOps: (inp, ops = []) => {
         let mergedInput = inp;
-        ops.forEach(op => mergedInput += op);
+        // Merged in unfiltered input
+        if (ops.length) {
+          ops.forEach(op => mergedInput += op);
+        }
         return mergedInput;
       },
       // values => arr
@@ -130,9 +158,10 @@ const expectedVal = 67;
           const lastChain = this.getLastChain(acc);
           // const formattedInput = currentValue === '(' ? [] : currentValue;
 
+          // Create New Array from group key
           let formattedInput = currentValue;
           if (currentValue === '(') {
-            currentValue = [];
+            formattedInput = [];
             chainDepth++;
           }
 
@@ -140,7 +169,7 @@ const expectedVal = 67;
           // console.log('groupInput', i, arr[i], acc)
 
 
-          console.log('getInputChain', chainDepth, currentValue);
+          // console.log('getInputChain', chainDepth, formattedInput, currentValue);
           // if (currentValue === '9') {
             // debugger
           // }
@@ -168,7 +197,11 @@ const expectedVal = 67;
 
         let total = 0;
         let operator = OPERATOR.ADD;
-        this.getMergedValues(arr).forEach(node => {
+
+        const mergedValues = this.getMergedValues(arr);
+        // console.log('mergedValues', mergedValues);
+
+        mergedValues.forEach(node => {
            const value = Number.parseFloat(node, 10);
           // Value is Number
           if (!Number.isNaN(value)) {
@@ -199,15 +232,28 @@ const expectedVal = 67;
     const chain = methods.getInputChain(mergedInput);
     const val = methods.getComputeChain(chain);
 
-    console.log('calc', {val, chain, mergedInput, methods, expectedVal});
-
-    if (val !== expectedVal) {
+    // console.log('calc', {val, chain, mergedInput, methods})
+    // if (val !== expectedVal) {
       // debugger
-    }
+    // }
+
+    return val;
   };
 
 
 
 // doStuff(defaultInput2, flows);
-calc(defaultInput3, flows);
+// calc(defaultInput3, flows);
 
+
+const testResultsPassed = tests.every(test => {
+  const result = calc(test.input, test.extra);
+
+  if (result !== test.output) {
+    debugger
+  }
+
+  return result === test.output;
+});
+
+console.log('testResultsPassed', testResultsPassed);
