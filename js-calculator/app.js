@@ -47,11 +47,12 @@ const OPERATOR = {
   DIVIDE: '/'
 };
 
+// Actions
 const ACTION = {
   EQUALS: '='
 };
 
-// Util
+// Common Util
 const _ = {
   camel2Kebab: str => str.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join(''),
   chunkArr: (arr, chunkSize) => {
@@ -713,6 +714,7 @@ class App {
 
       }
     });
+
 //     const myLightCalculator = new Calculator({
 //       ...calculatorProps,
 //       input: ['0'],
