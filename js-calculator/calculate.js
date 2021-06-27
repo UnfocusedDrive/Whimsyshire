@@ -41,7 +41,7 @@ const tests = [
 // input => str
 // operations => arr('str')
 const calc = (input, operations) => {
-  const methods = {
+  const calcUtil = {
     computeValue(total, operator, value) {
       switch (operator) {
         case '-':
@@ -211,11 +211,11 @@ const calc = (input, operations) => {
     }
   };
 
-  const mergedInput = methods.getMergedOps(input, operations);
-  const chain = methods.getInputChain(mergedInput);
-  const result = methods.getComputeChain(chain);
+  const mergedInput = calcUtil.getMergedOps(input, operations);
+  const chain = calcUtil.getInputChain(mergedInput);
+  const result = calcUtil.getComputeChain(chain);
 
-  console.log('calc', {result, chain, mergedInput, methods})
+  console.log('calc', {result, chain, mergedInput, calcUtil})
   // if (result !== expectedresult) {
     // debugger
   // }

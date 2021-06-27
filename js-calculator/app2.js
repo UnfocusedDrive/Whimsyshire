@@ -360,13 +360,30 @@ class Calculator {
       displayColor: COLOR_PALETTE.WHITE,
       ...this.theme
     };
+
+    this.inputEl = Spawn({
+      children: input
+    });
+    this.prevInputEl = Spawn({
+      children: ''
+    });
     this.el = Spawn({
       className: 'js-calculator',
       children: [
         Spawn({
-          children: input,
+          children: this.prevInputEl,
           style: {
             color: this.theme.displayColor,
+            // fixed height so does not shify
+            height: '20px',
+            textAlign: 'right'
+          }
+        }),
+        Spawn({
+          children: this.inputEl,
+          style: {
+            color: this.theme.displayColor,
+            textAlign: 'right',
             height: '100px'
           }
         })
@@ -382,15 +399,21 @@ class Calculator {
     });
 
     this.renderBtns();
-    this.calculateInput();
+    // this.calculateInput();
   }
 
-  calculateInput() {
+  // @returns {string}
+  getCalculatedInput() {
     const mergedInput = calcUtil.getMergedOps(this.input, []);
     const chain = calcUtil.getInputChain(mergedInput);
-    const result = calcUtil.getComputeChain(chain);
+    const total = calcUtil.getComputeChain(chain);
 
-    console.log('resukt', result);
+    // console.log('resukt', total);
+    return {
+      mergedInput,
+      chain,
+      total: `${total}`
+    };
 
   }
 
@@ -475,6 +498,98 @@ class Calculator {
         value: ACTION.EQUALS
       }
     ];
+  }
+
+  handleBtnOnClick(value) {
+    // console.log('handleBtnOnClick', value);
+
+    switch(value) {
+
+      case 'clear':
+      this.resetInput();
+        break;
+      // Calculate Input
+      case '=':
+        // const total = this.getCalculatedInput();
+        this.calculateInput();
+        break;
+      default:
+        // debugger
+        // this.updateInput(this.input + value);
+        this.appendInput(value);
+
+    }
+  }
+
+  /**
+   * Reset Input
+   */
+  resetInput() {
+    this.updateInput('0');
+  }
+
+  calculateInput() {
+    const { mergedInput, total } = this.getCalculatedInput();
+
+    // Save reference of last used arithmatic
+    const prevInput = mergedInput === total ? '' : mergedInput;
+    this.prevInputEl.innerHTML = prevInput;
+
+    // this.input = total;
+    // Update Display
+
+    // this.inputEl.innerHTML = total;
+    // debugger
+
+    this.updateInput(total);
+
+  }
+
+  /**
+   * Formats value with current input
+   * @param {string|number} value
+   * @returns {string} of formatted input
+   */
+  getFormattedInput(value) {
+    console.log('getFormattedInput', this.input, value);
+
+    let formattedValue = `${value}`;
+
+    const lastInput = this.input.slice(-1);
+    const lastInputIsOp = calcUtil.isOperator(lastInput);
+
+    // If fresh instance, replace the default '0' and setting a new num...
+    const lastIsDefault = !calcUtil.isOperator(value) && this.input === '0';
+    // update if previous input and new value are both not operator
+    const lastIsSameOp = calcUtil.isOperator(formattedValue) && (formattedValue === lastInput);
+
+    const lastIsOp = calcUtil.isOperator(formattedValue) && lastInputIsOp;
+
+    if (lastIsDefault) {
+      return formattedValue;
+    } else if (lastIsSameOp) {
+      return this.input;
+    } else if (lastIsOp) {
+      return this.input.slice(0, this.input.length-1) + formattedValue;
+    }
+
+    return this.input + formattedValue;
+  }
+
+  // value => str|num
+  appendInput(value) {
+    this.updateInput(this.getFormattedInput(value));
+  }
+
+  /**
+   * Update Input and Display Value
+   * @param {string} value - to set input as
+   */
+  updateInput(value) {
+    this.input = value;
+
+    // Update Display
+    this.inputEl.innerHTML = value;
   }
 
   /**
