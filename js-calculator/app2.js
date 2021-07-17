@@ -1,6 +1,8 @@
 /**
  * NEXT:
- * - Make '=' btn calculae the input
+ * Make operator text color white
+ * make current input color big
+ * make input with colored operators (may already be done...);
  * - Style the input to make it pretty....
  * - add shadow ')' like google calc
  */
@@ -361,8 +363,13 @@ class Calculator {
       ...this.theme
     };
 
+    // Display Input Element
     this.inputEl = Spawn({
-      children: input
+      children: input,
+      style: {
+        whiteSpace: 'nowrap',
+        float: 'right'
+      }
     });
     this.prevInputEl = Spawn({
       children: ''
@@ -379,12 +386,14 @@ class Calculator {
             textAlign: 'right'
           }
         }),
+
         Spawn({
           children: this.inputEl,
           style: {
             color: this.theme.displayColor,
             textAlign: 'right',
-            height: '100px'
+            height: '100px',
+            overflow: 'hidden'
           }
         })
       ],
@@ -394,12 +403,23 @@ class Calculator {
         borderRadius: '4px',
         display: 'inline-block',
         padding: '10px',
+        width: '260px',
+        boxSizing: 'border-box',
         ...style
       }
     });
 
     this.renderBtns();
     // this.calculateInput();
+    document.addEventListener('keypress', this.handleKeyPress)
+  }
+
+  /**
+   * Destroy Calculator Instance
+   */
+  destroy() {
+    document.removeEventListener('keypress', this.handleKeyPress);
+    this.el = null;
   }
 
   // @returns {string}
@@ -498,6 +518,10 @@ class Calculator {
         value: ACTION.EQUALS
       }
     ];
+  }
+
+  handleKeyPress(e) {
+    console.log('handleKeyPress', e);
   }
 
   handleBtnOnClick(value) {
