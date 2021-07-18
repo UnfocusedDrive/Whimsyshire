@@ -1,15 +1,4 @@
 /**
- * NEXT:
- * Make operator text color white
- * make current input color big
- * make input with colored operators (may already be done...);
- * - Style the input to make it pretty....
- * - add shadow ')' like google calc
- */
-
-
-
-/**
  * JS Calculator
  *
  * Objectives/Constraints:
@@ -26,6 +15,29 @@
  *   adsd : https://www.freecodecamp.org/news/how-to-build-an-html-calculator-app-from-scratch-using-javascript-4454b8714b98/
  *
  *  Comments/questions/requests? Feel free to reach out to me!
+ *
+ *
+
+
+ * NEXT:
+ * Finish Hover/Press colors on each key. ++ Update style based on the global events
+ * Make operator text color white
+ * make current input color big
+ * make input with colored operators (may already be done...);
+ * - Style the input to make it pretty....
+ * - add shadow ')' like google calc
+
+
+
+
+
+
+
+
+
+
+
+
  */
 
 
@@ -47,10 +59,18 @@ const COLOR_PALETTE = {
   GRAY_2: '#242424',
   GRAY_3: '#484848',
   GRAY_4: '#eef0f9',
+  GRAY_5: '#858585',
   ORANGE: '#f59315',
   RED_1: '#3b0202',
   RED_2: '#f51515',
-  GREEN: '#5bce09'
+  GREEN: '#5bce09',
+  WHITE_00: '#ffffff',
+  GRAY_10: '#17181A',
+  GRAY_20: '#222427',
+  // + 6% Lightness
+  GRAY_30: '#2f3237',
+  // + 6% Lightness
+  GRAY_40: '#3e4147'
 };
 
 // Arithmic Operators
@@ -65,6 +85,87 @@ const OPERATOR = {
 const ACTION = {
   EQUALS: '='
 };
+
+// Calculator Inputs
+const INPUTS = [
+  // Euler
+  {
+    value: 'e'
+  },
+  // Pie
+  {
+    label: 'π',
+    value: 'p'
+  },
+  {
+    name: 'sin',
+    value: null
+  },
+  {
+    name: 'deg',
+    value: null
+  },
+  {
+    label: 'C',
+    value: 'clear'
+  },
+  {
+    value: '('
+  },
+  {
+    value: ')'
+  },
+  {
+    label: '÷',
+    value: '/'
+  },
+  {
+    value: 7
+  },
+  {
+    value: 8
+  },
+  {
+    value: 9
+  },
+  {
+    label: 'X',
+    value: '*'
+  },
+  {
+    value: 4
+  },
+  {
+    value: 5
+  },
+  {
+    value: 6
+  },
+  {
+    value: '-'
+  },
+  {
+    value: 1
+  },
+  {
+    value: 2
+  },
+  {
+    value: 3
+  },
+  {
+    value: '+'
+  },
+  {
+    value: 0
+  },
+  {
+    value: '.'
+  },
+  {
+    value: ACTION.EQUALS
+  }
+];
 
 // Common Util
 const _ = {
@@ -318,11 +419,19 @@ const Spawn = (props = {}) => {
     });
   }
 
+  // Attach Event Listeners
+  // Assign {event} and {el} (self)
   if (events) {
     Object.keys(events).forEach(key => {
-       el.addEventListener(key, events[key]);
+       el.addEventListener(key, e => events[key](e, el));
     });
   }
+
+  // if (events) {
+  //   Object.keys(events).forEach(key => {
+  //      el.addEventListener(key, events[key]);
+  //   });
+  // }
 
   // Attach Style
   if (style) {
@@ -351,17 +460,33 @@ const Spawn = (props = {}) => {
 };
 
 
-// Calculator
+/**
+ * Calculator App Component
+ * Accepts onKey or Click Events
+ * @returns {number} of current value
+ */
 class Calculator {
   constructor(props = {}) {
     const { input = '0', parentEl, style, theme } = props;
 
     this.input = input;
     this.theme = {
-      color: COLOR_PALETTE.BLACK,
+      background: COLOR_PALETTE.GRAY_10,
+      button: COLOR_PALETTE.GRAY_20,
+      buttonHover: COLOR_PALETTE.GRAY_30,
+      buttonPress: COLOR_PALETTE.GRAY_40,
+      color: COLOR_PALETTE.WHITE_00,
       displayColor: COLOR_PALETTE.WHITE,
       ...this.theme
     };
+
+
+    // Text Input Style
+    const txtStyle = {
+      textAlign: 'right',
+      overflow: 'hidden'
+    };
+
 
     // Display Input Element
     this.inputEl = Spawn({
@@ -383,7 +508,7 @@ class Calculator {
             color: this.theme.displayColor,
             // fixed height so does not shify
             height: '20px',
-            textAlign: 'right'
+            ...txtStyle
           }
         }),
 
@@ -391,15 +516,14 @@ class Calculator {
           children: this.inputEl,
           style: {
             color: this.theme.displayColor,
-            textAlign: 'right',
             height: '100px',
-            overflow: 'hidden'
+            ...txtStyle
           }
         })
       ],
       parentEl,
       style: {
-        background: COLOR_PALETTE.GRAY_2,
+        background: this.theme.background,
         borderRadius: '4px',
         display: 'inline-block',
         padding: '10px',
@@ -442,106 +566,43 @@ class Calculator {
    * @returns {array} of buttons for calculator
    */
   getButtons() {
-    return [
-      {
-        // Euler
-        value: 'e'
-      },
-      {
-        label: 'π',
-        value: 'p'
-      },
-      {
-        name: 'sin'
-      },
-      {
-        name: 'deg'
-      },
-      {
-        label: 'C',
-        value: 'clear'
-      },
-      {
-        value: '('
-      },
-      {
-        value: ')'
-      },
-      {
-        label: '÷',
-        value: '/'
-      },
-      {
-        value: 7
-      },
-      {
-        value: 8
-      },
-      {
-        value: 9
-      },
-      {
-        label: 'X',
-        value: '*'
-      },
-      {
-        value: 4
-      },
-      {
-        value: 5
-      },
-      {
-        value: 6
-      },
-      {
-        value: '-'
-      },
-      {
-        value: 1
-      },
-      {
-        value: 2
-      },
-      {
-        value: 3
-      },
-      {
-        value: '+'
-      },
-      {
-        value: 0
-      },
-      {
-        value: '.'
-      },
-      {
-        value: ACTION.EQUALS
-      }
-    ];
+    return INPUTS;
   }
 
-  handleKeyPress(e) {
+  getValidInputs(value) {
+    return INPUTS.map(o => `${o.value}`).indexOf(`${value}`) > -1;
+  }
+
+  handleKeyPress = (e) => {
+    const value = e.key;
     console.log('handleKeyPress', e);
+
+    this.triggerInputEvent(value);
   }
 
   handleBtnOnClick(value) {
-    // console.log('handleBtnOnClick', value);
+    this.triggerInputEvent(value);
+  }
 
-    switch(value) {
+  /**
+   * Trigger input event
+   * @parma {string} value - value to send
+   */
+  triggerInputEvent(value) {
+    const validatedInput = this.getValidInputs(value);
 
-      case 'clear':
-      this.resetInput();
-        break;
-      // Calculate Input
-      case '=':
-        // const total = this.getCalculatedInput();
-        this.calculateInput();
-        break;
-      default:
-        // debugger
-        // this.updateInput(this.input + value);
-        this.appendInput(value);
-
+    if (validatedInput) {
+      switch(value) {
+        case 'clear':
+        this.resetInput();
+          break;
+        // Calculate Input
+        case '=':
+          this.calculateInput();
+          break;
+        default:
+          this.appendInput(value);
+      }
     }
   }
 
@@ -637,8 +698,12 @@ class Calculator {
           }
 
           let color = this.theme.color;
-
           let background = this.theme.button;
+          const events = {
+            click: () => this.handleBtnOnClick(value)
+          };
+
+          // Operator Input
           if (calcUtil.isOperator(value)) {
             background = '#f59315';
             color = this.theme.buttonAction;
@@ -648,26 +713,38 @@ class Calculator {
           } else if (value === ACTION.EQUALS) {
             background = '#5bce09';
             color = this.theme.buttonAction;
+          // Assign Style Events
+          } else {
+            events.mouseenter = (e, el) => el.style.background = this.theme.buttonHover;
+            events.mousedown = (e, el) => el.style.background = this.theme.buttonPress;
+            events.keydown = (e, el) => el.style.background = this.theme.buttonPress;
+            events.keyup = (e, el) => el.style.background = this.theme.button;
+            events.mouseup = (e, el) => el.style.background = this.theme.buttonHover;
+            events.mouseleave = (e, el) => el.style.background = this.theme.button;
           }
 
+
+          console.log('background', background, this);
+
+          // Button Container
           return Spawn({
             style: {
               display: 'inline-block',
               padding: _.toPx(spacer)
             },
             children: [
+              // Button
               Spawn({
                 ...btn,
-                events: {
-                  click: () => this.handleBtnOnClick(value)
-                },
+                events,
                 style: {
                   background,
                   borderRadius: '6px',
                   borderStyle: 'none',
                   color,
                   width: _.toPx(width),
-                  height: _.toPx(height)
+                  height: _.toPx(height),
+                  cursor: 'pointer'
                 },
                 type: 'button'
               })

@@ -690,7 +690,7 @@ class MyApp {
     document.body.append(this.el);
 
 
-    document.addEventListener('keypress', this.handleKeyPress);
+    document.addEventListener('keydown', this.handleKeyPress);
 
     this.str = str;
     const transformedTxt = NihongoTransformer(this.str);
@@ -703,10 +703,18 @@ class MyApp {
   }
 
   handleKeyPress = (e) => {
-    this.str += e.key;
+    // Remove Last Key
+    if (e.key === 'Backspace') {
+      this.str = this.str.slice(0, -1);
+    } else {
+      this.str += e.key;
+    }
+
+
     const transformedTxt = NihongoTransformer(this.str);
     console.log('handleKeyPress', this.str, transformedTxt);
     this.el.innerText = transformedTxt;
+    // debugger
   }
 }
 
@@ -729,6 +737,21 @@ const results = tests.forEach(test => {
     });
   }
 });
+
+
+
+const generateButton = (val) => {
+  const el = document.createElement('BUTTON');
+  el.innerHTML = val;
+  document.body.append(el);
+};
+
+
+generateButton(hiraganaMap.ko);
+
+const btns = Object.keys(hiraganaMap).map(key => generateButton(hiraganaMap[key]));
+
+
 
 const infoEl = document.createElement('div').innerHTML = 'Type something in Japanese!';
 const spaceEl = document.createElement('div');
