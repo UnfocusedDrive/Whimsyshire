@@ -9,6 +9,11 @@
  * Functionality:
  *  - Math calculator with nested level computation
  *
+ * I/O:
+ *  - Click buttons calculate
+ *  - Press keyboard keys to calculate
+ *    - Enter/Equals to computer / Backspace to remove last character
+ *
  * References:
  *  UI Design {author} : https://dribbble.com/shots/6144137-Calculator-App-iOS-13/attachments/6144137-Calculator-App-iOS-13?mode=media
  *  CodePen: https://codepen.io/anthonykoch/pen/xVQOwb?editors=0010
@@ -50,6 +55,9 @@
 // add instructions on top of calc demo
 // mybe some cool animatiosn
 // more border radius on buttons
+
+
+const DEFAULT_VALUE = '0';
 
 // Color Palette
 const COLOR_PALETTE = {
@@ -167,6 +175,17 @@ const INPUTS = [
   }
 ];
 
+const GLOBAL_INPUTS = [
+  // Remove last character
+  {
+    value: 'Backspace'
+  },
+  // Compute current input
+  {
+    value: 'Enter'
+  }
+];
+
 // Common Util
 const _ = {
   camel2Kebab: str => str.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join(''),
@@ -200,7 +219,7 @@ const _ = {
     return string.split('.').map(s => {
       if (s.length > 1) {
         const fm = s.replace(/^0+/, '');
-        return fm === '' ? '0' : fm;
+        return fm === '' ? DEFAULT_VALUE : fm;
       }
       return s;
     }).join('.');
@@ -382,7 +401,7 @@ const calcUtil = {
 /**
  * Spawn DOM
  * Generates HTML elements
- * @param {element} parentEl - parent element to spawn in
+ * @param {element} parentEl - parent element to spawn into
  * @returns {element}
  */
 const Spawn = (props = {}) => {
@@ -399,7 +418,7 @@ const Spawn = (props = {}) => {
   } = props;
   const el = document.createElement(type);
 
-  const addChildren = (children) => {
+  const appendChildren = (children) => {
     let fmChildren = children;
     if (!Array.isArray(fmChildren)) {
       fmChildren = [fmChildren];
@@ -449,7 +468,7 @@ const Spawn = (props = {}) => {
     el.appendChild(lbl);
   }
 
-  addChildren(children);
+  appendChildren(children);
 
   // Append to parent
   if (parentEl) {
@@ -467,7 +486,7 @@ const Spawn = (props = {}) => {
  */
 class Calculator {
   constructor(props = {}) {
-    const { input = '0', parentEl, style, theme } = props;
+    const { input = DEFAULT_VALUE, parentEl, style, theme } = props;
 
     this.input = input;
     this.theme = {
@@ -535,14 +554,15 @@ class Calculator {
 
     this.renderBtns();
     // this.calculateInput();
-    document.addEventListener('keypress', this.handleKeyPress)
+    // keydown instead of keypress to handle backspace
+    document.addEventListener('keydown', this.handleKeyPress)
   }
 
   /**
    * Destroy Calculator Instance
    */
   destroy() {
-    document.removeEventListener('keypress', this.handleKeyPress);
+    document.removeEventListener('keydown', this.handleKeyPress);
     this.el = null;
   }
 
@@ -570,7 +590,8 @@ class Calculator {
   }
 
   getValidInputs(value) {
-    return INPUTS.map(o => `${o.value}`).indexOf(`${value}`) > -1;
+    console.log('getValidInputs', value);
+    return [...INPUTS, ...GLOBAL_INPUTS].map(o => `${o.value}`).indexOf(`${value}`) > -1;
   }
 
   handleKeyPress = (e) => {
@@ -593,15 +614,19 @@ class Calculator {
 
     if (validatedInput) {
       switch(value) {
+        case 'Backspace':
+          this.removeLastInputValue();
+          break;
         case 'clear':
         this.resetInput();
           break;
         // Calculate Input
         case '=':
+        case 'Enter':
           this.calculateInput();
           break;
         default:
-          this.appendInput(value);
+          this.appendInputValue(value);
       }
     }
   }
@@ -610,7 +635,7 @@ class Calculator {
    * Reset Input
    */
   resetInput() {
-    this.updateInput('0');
+    this.updateInput(DEFAULT_VALUE);
   }
 
   calculateInput() {
@@ -643,8 +668,8 @@ class Calculator {
     const lastInput = this.input.slice(-1);
     const lastInputIsOp = calcUtil.isOperator(lastInput);
 
-    // If fresh instance, replace the default '0' and setting a new num...
-    const lastIsDefault = !calcUtil.isOperator(value) && this.input === '0';
+    // If fresh instance, replace the default DEFAULT_VALUE and setting a new num...
+    const lastIsDefault = !calcUtil.isOperator(value) && this.input === DEFAULT_VALUE;
     // update if previous input and new value are both not operator
     const lastIsSameOp = calcUtil.isOperator(formattedValue) && (formattedValue === lastInput);
 
@@ -662,8 +687,15 @@ class Calculator {
   }
 
   // value => str|num
-  appendInput(value) {
+  appendInputValue(value) {
     this.updateInput(this.getFormattedInput(value));
+  }
+
+  removeLastInputValue() {
+    let newVal = this.input.slice(0, -1);
+    newVal = newVal || DEFAULT_VALUE;
+
+    this.updateInput(newVal);
   }
 
   /**
