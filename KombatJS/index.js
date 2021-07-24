@@ -441,14 +441,23 @@ class Character {
   constructor() {
     this.el = document.createElement('div');
     this.el.setAttribute('style', 'position: relative');
-    this.position = 0;
+    // this.position = 0;
     this.animate();
     this.attachEvents();
+    // this.state.move = null;
+
+    this.state = {
+      isMoving: false,
+      position: 0,
+      move: null
+    };
+
     return this;
   }
 
   attachEvents() {
-    document.body.addEventListener('keydown', this.move);
+    document.body.addEventListener('keydown', this.handleKeyDown);
+    document.body.addEventListener('keyup', this.handleKeyUp);
   }
 
   animate(count = 0) {
@@ -460,11 +469,68 @@ class Character {
     }, 100);
   }
 
-  move = () => {
-    const inc = 5;
-    this.position = this.position + inc;
-    console.log('move', this.position);
-    this.el.style.left = this.position;
+  handleKeyDown = (e) => {
+    const action = e.key;
+
+    let direction;
+    switch (action) {
+      case 'ArrowRight':
+        direction = 'right';
+        break;
+      case 'ArrowLeft':
+        direction = 'left';
+        break;
+      default:
+        direction = null;
+    }
+
+    if (direction) {
+
+
+
+      console.log('handleKeyDown', direction, this.state.move);
+
+
+
+      this.state.move = direction;
+
+      if (!this.state.isMoving) {
+        this.state.isMoving = true;
+        this.move();
+      }
+    }
+  }
+
+  handleKeyUp = (e) => {
+    this.state.isMoving = false;
+    this.state.direction = null;
+  }
+
+  stopMove = (e) => {
+
+  }
+
+  move = (e) => {
+    const inc = 1;
+
+
+    if (this.state.isMoving && this.state.move) {
+      if (this.state.move === 'right') {
+        this.state.position = this.state.position + inc;
+      } else if (this.state.move === 'left') {
+        this.state.position = this.state.position - inc;
+      }
+
+      // console.log('move', e, this.state.position);
+      this.el.style.left = this.state.position;
+
+
+      setTimeout(this.move, 10);
+    }
+
+
+
+
   }
 };
 
@@ -490,11 +556,11 @@ class Character {
 
 
 
-const move = (e) => {
-  character.move();
-  console.log('move', e, character.style.left);
-  character.style.left = 0;
-};
+// const move = (e) => {
+//   character.move();
+//   console.log('move', e, character.style.left);
+//   character.style.left = 0;
+// };
 
 // document.body.addEventListener('keydown', move);
 
