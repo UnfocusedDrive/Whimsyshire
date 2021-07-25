@@ -5,6 +5,7 @@
  *  - Easy Import and Customize into any App
  *  - Single JS file for entire setup
  *  - No External Libraries
+ *  - Theme Token Support
  *
  * Functionality:
  *  - Math calculator with nested level computation
@@ -25,9 +26,14 @@
 
 
  * NEXT:
- * Get color states for op, equals, computer, clr (by 7% probably)
+ * Finish KEYBOARD redirect .. ENTER => EQUALS, EQUALS => EQUALS
+ * CHange div symbol to /
+ * Fix border radius on buttons and calculator
+ * Get proper type face
+ * Consider idea of making each button its own Class component -- potetnially reduce code/bloat/organization
+ * [done] Get color states for op, equals, computer, clr (by 7% probably)
  * Finish Hover/Press colors on each key. ++ Update style based on the global events
- *  [done] Make operator text color white
+ * [done] Make operator text color white
  * make current input color big
  * make input with colored operators (may already be done...);
  * - Style the input to make it pretty....
@@ -63,24 +69,55 @@ const DEFAULT_VALUE = '0';
 
 // Color Palette
 const COLOR_PALETTE = {
-  BLACK: '#000000',
-  WHITE: '#ffffff',
-  GRAY_1: '#141414',
-  GRAY_2: '#242424',
-  GRAY_3: '#484848',
-  GRAY_4: '#eef0f9',
-  GRAY_5: '#858585',
-  ORANGE: '#f59315',
-  RED_1: '#3b0202',
-  RED_2: '#f51515',
-  GREEN: '#5bce09',
+  // BLACK: '#000000',
+  // WHITE: '#ffffff',
+
+  // GRAY_2: '#242424',
+  // GRAY_3: '#484848',
+  // GRAY_4: '#eef0f9',
+  // GRAY_5: '#858585',
+
+
+
+
+  // ORANGE: '#f59315',
+
+  // RED_1: '#3b0202',
+  // RED_2: '#f51515',
+  // GREEN: '#5bce09',
+
+
+
+  // verified below....
   WHITE_00: '#ffffff',
+  GRAY_00: '#141414',
   GRAY_10: '#17181A',
   GRAY_20: '#222427',
   // + 6% Lightness
   GRAY_30: '#2f3237',
+  GRAY_80: '#88898A',
   // + 6% Lightness
-  GRAY_40: '#3e4147'
+  GRAY_40: '#3e4147',
+  BLACK_00: '#000000',
+  GREEN_10: '#2EC973',
+  // + 6% Lightness
+  GREEN_20: '#40d482',
+  // + 6% Lightness
+  GREEN_30: '#59d993',
+  YELLOW_10: '#FF9500',
+  // + 6% Lightness
+  YELLOW_20: '#ffa21f',
+  // + 6% Lightness
+  YELLOW_30: '#ffae3d',
+
+  YELLOW_80: '#8B570D',
+  RED_10: '#F6444E',
+  // - 6% Lightness
+  RED_60: '#562f39',
+  // - 6% Lightness
+  RED_70: '#42242c',
+  RED_80: '#2D191E'
+
 };
 
 // Arithmic Operators
@@ -93,6 +130,10 @@ const OPERATOR = {
 
 // Actions
 const ACTION = {
+  CLEAR: 'clear',
+  UNDO: 'undo',
+  COMPUTE: '=',
+  // remove this one....
   EQUALS: '='
 };
 
@@ -176,6 +217,11 @@ const INPUTS = [
     value: ACTION.EQUALS
   }
 ];
+
+const REDIRECTED_INPUTS = {
+  // Backspace:
+  Enter: ACTION.EQUALS
+};
 
 const GLOBAL_INPUTS = [
   // Remove last character
@@ -493,35 +539,37 @@ class Calculator {
     this.buttons = {};
     // this.buttonEls = {};
     this.input = input;
-    this.theme = {
-      background: COLOR_PALETTE.GRAY_10,
-      // Default Button
-      button: COLOR_PALETTE.GRAY_20,
-      buttonHover: COLOR_PALETTE.GRAY_30,
-      buttonPress: COLOR_PALETTE.GRAY_40,
+    // this.theme = {
+    //   background: COLOR_PALETTE.GRAY_10,
+    //   // Default Button
+    //   button: COLOR_PALETTE.GRAY_20,
+    //   buttonHover: COLOR_PALETTE.GRAY_30,
+    //   buttonPress: COLOR_PALETTE.GRAY_40,
 
 
-      buttonAction: COLOR_PALETTE.WHITE_00,
+    //   buttonAction: COLOR_PALETTE.WHITE_00,
 
-      // Operator Button
-      buttonOp: '#f59315',
-      buttonOpHover: COLOR_PALETTE.GRAY_30,
-      buttonOpPress: COLOR_PALETTE.GRAY_40,
+    //   // Operator Button
+    //   buttonOp: COLOR_PALETTE.YELLOW_10,
+    //   buttonOpHover: COLOR_PALETTE.GRAY_30,
+    //   buttonOpPress: COLOR_PALETTE.GRAY_40,
 
-      // Clear Button
-      buttonClr: '#3b0202',
-      buttonClrHover: COLOR_PALETTE.GRAY_30,
-      buttonClrPress: COLOR_PALETTE.GRAY_40,
-      buttonClrFont: '#f51515',
-      // Compute Button
-      buttonComp: '#5bce09',
-      buttonCompHover: COLOR_PALETTE.GRAY_30,
-      buttonCompPress: COLOR_PALETTE.GRAY_40,
+    //   // Clear Button
+    //   buttonClr: '#3b0202',
+    //   buttonClrHover: COLOR_PALETTE.GRAY_30,
+    //   buttonClrPress: COLOR_PALETTE.GRAY_40,
+    //   buttonClrFont: '#f51515',
+    //   // Compute Button
+    //   buttonComp: '#5bce09',
+    //   buttonCompHover: COLOR_PALETTE.GRAY_30,
+    //   buttonCompPress: COLOR_PALETTE.GRAY_40,
 
-      color: COLOR_PALETTE.WHITE_00,
-      displayColor: COLOR_PALETTE.WHITE,
-      ...theme
-    };
+    //   color: COLOR_PALETTE.WHITE_00,
+    //   displayColor: COLOR_PALETTE.WHITE,
+    //   ...theme
+    // };
+
+    this.theme = this.getTheme(theme);
 
 
     // Text Input Style
@@ -586,6 +634,34 @@ class Calculator {
     console.log('constructor', this);
   }
 
+
+  getTheme(theme) {
+    return {
+      background: COLOR_PALETTE.GRAY_10,
+      // Default Button
+      button: COLOR_PALETTE.GRAY_20,
+      buttonHover: COLOR_PALETTE.GRAY_30,
+      buttonPress: COLOR_PALETTE.GRAY_40,
+      buttonAction: COLOR_PALETTE.WHITE_00,
+      // Operator Button
+      buttonOp: COLOR_PALETTE.YELLOW_10,
+      buttonOpHover: COLOR_PALETTE.YELLOW_20,
+      buttonOpPress: COLOR_PALETTE.YELLOW_30,
+      // Clear Button
+      buttonClr: COLOR_PALETTE.RED_80,
+      buttonClrHover: COLOR_PALETTE.RED_70,
+      buttonClrPress: COLOR_PALETTE.RED_60,
+      buttonClrFont: COLOR_PALETTE.RED_10,
+      // Compute Button
+      buttonComp: COLOR_PALETTE.GREEN_10,
+      buttonCompHover: COLOR_PALETTE.GREEN_20,
+      buttonCompPress: COLOR_PALETTE.GREEN_30,
+      color: COLOR_PALETTE.WHITE_00,
+      displayColor: COLOR_PALETTE.WHITE_00,
+      ...theme
+    };
+  }
+
   /**
    * Destroy Calculator Instance
    */
@@ -618,8 +694,13 @@ class Calculator {
   }
 
   getValidInputs(value) {
+
+    const formattedValue =
     console.log('getValidInputs', value);
-    return [...INPUTS, ...GLOBAL_INPUTS].map(o => `${o.value}`).indexOf(`${value}`) > -1;
+    const result = [...INPUTS, ...GLOBAL_INPUTS].map(o => `${o.value}`).indexOf(`${value}`) > -1;
+    debugger
+
+    return result;
   }
 
   handleKeyDown = (e) => {
@@ -787,41 +868,51 @@ class Calculator {
             height = 30;
           }
 
-          let color = this.theme.color;
-          let background = this.theme.button;
-          let hover = this.theme.buttonHover;
-          let pressed = this.theme.buttonPress;
+          let color;
+          let background;
+          let hover;
+          let pressed;
           let type;
-          const events = {
-            click: () => this.handleBtnOnClick(value)
-          };
-
           // Operator Input
           if (calcUtil.isOperator(value)) {
             type = 'operator';
-            // background = '#f59315';
             background = this.theme.buttonOp;
+            hover = this.theme.buttonOpHover;
+            pressed = this.theme.buttonOpPress;
             color = this.theme.buttonAction;
           } else if (value === 'clear') {
             type = 'clear';
             // background = '#3b0202';
             background = this.theme.buttonClr;
+            hover = this.theme.buttonClrHover;
+            pressed = this.theme.buttonClrPress;
             color = '#f51515';
           } else if (value === ACTION.EQUALS) {
             type = 'compute';
             // background = '#5bce09';
             background = this.theme.buttonComp;
+            hover = this.theme.buttonCompHover;
+            pressed = this.theme.buttonCompPress;
             color = this.theme.buttonAction;
           // Assign Style Events
           } else {
             type = 'default';
-            events.mouseenter = (e, el) => el.style.background = hover;
-            events.mousedown = (e, el) => el.style.background = pressed;
-            events.keydown = (e, el) => el.style.background = pressed;
-            events.keyup = (e, el) => el.style.background = background;
-            events.mouseup = (e, el) => el.style.background = hover;
-            events.mouseleave = (e, el) => el.style.background = background;
+            color = this.theme.color;
+            background = this.theme.button;
+            hover = this.theme.buttonHover;
+            pressed = this.theme.buttonPress;
           }
+
+          // Attach event handlers
+          const events = {
+            click: () => this.handleBtnOnClick(value),
+            mouseenter: (e, el) => el.style.background = hover,
+            mousedown: (e, el) => el.style.background = pressed,
+            keydown: (e, el) => el.style.background = pressed,
+            keyup: (e, el) => el.style.background = background,
+            mouseup: (e, el) => el.style.background = hover,
+            mouseleave: (e, el) => el.style.background = background
+          };
 
 
           // console.log('background', background, this);
@@ -904,13 +995,13 @@ class App {
         Spawn({
           children: 'JS Calculator',
           style:{
-            color: COLOR_PALETTE.WHITE
+            color: COLOR_PALETTE.WHITE_00
           }
         }),
         Spawn({
           children: 'Use keyboard or click buttons to calculate!',
           style:{
-            color: COLOR_PALETTE.WHITE,
+            color: COLOR_PALETTE.WHITE_00,
             marginTop: '10px'
           }
         })
@@ -927,7 +1018,7 @@ class App {
     });
 
     // Custom App Styles
-    document.body.style.background = COLOR_PALETTE.GRAY_1;
+    document.body.style.background = COLOR_PALETTE.GRAY_00;
 
     return this;
   }
