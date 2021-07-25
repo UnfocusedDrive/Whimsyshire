@@ -25,12 +25,14 @@
 
 
  * NEXT:
+ * Get color states for op, equals, computer, clr (by 7% probably)
  * Finish Hover/Press colors on each key. ++ Update style based on the global events
- * Make operator text color white
+ *  [done] Make operator text color white
  * make current input color big
  * make input with colored operators (may already be done...);
  * - Style the input to make it pretty....
  * - add shadow ')' like google calc
+ * Add operatiosn for e, pie sin, and deg
 
 
 
@@ -488,15 +490,37 @@ class Calculator {
   constructor(props = {}) {
     const { input = DEFAULT_VALUE, parentEl, style, theme } = props;
 
+    this.buttons = {};
+    // this.buttonEls = {};
     this.input = input;
     this.theme = {
       background: COLOR_PALETTE.GRAY_10,
+      // Default Button
       button: COLOR_PALETTE.GRAY_20,
       buttonHover: COLOR_PALETTE.GRAY_30,
       buttonPress: COLOR_PALETTE.GRAY_40,
+
+
+      buttonAction: COLOR_PALETTE.WHITE_00,
+
+      // Operator Button
+      buttonOp: '#f59315',
+      buttonOpHover: COLOR_PALETTE.GRAY_30,
+      buttonOpPress: COLOR_PALETTE.GRAY_40,
+
+      // Clear Button
+      buttonClr: '#3b0202',
+      buttonClrHover: COLOR_PALETTE.GRAY_30,
+      buttonClrPress: COLOR_PALETTE.GRAY_40,
+      buttonClrFont: '#f51515',
+      // Compute Button
+      buttonComp: '#5bce09',
+      buttonCompHover: COLOR_PALETTE.GRAY_30,
+      buttonCompPress: COLOR_PALETTE.GRAY_40,
+
       color: COLOR_PALETTE.WHITE_00,
       displayColor: COLOR_PALETTE.WHITE,
-      ...this.theme
+      ...theme
     };
 
 
@@ -555,14 +579,18 @@ class Calculator {
     this.renderBtns();
     // this.calculateInput();
     // keydown instead of keypress to handle backspace
-    document.addEventListener('keydown', this.handleKeyPress)
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
+
+
+    console.log('constructor', this);
   }
 
   /**
    * Destroy Calculator Instance
    */
   destroy() {
-    document.removeEventListener('keydown', this.handleKeyPress);
+    document.removeEventListener('keydown', this.handleKeyDown);
     this.el = null;
   }
 
@@ -594,11 +622,26 @@ class Calculator {
     return [...INPUTS, ...GLOBAL_INPUTS].map(o => `${o.value}`).indexOf(`${value}`) > -1;
   }
 
-  handleKeyPress = (e) => {
+  handleKeyDown = (e) => {
     const value = e.key;
-    console.log('handleKeyPress', e);
+    console.log('handleKeyDown', e);
 
     this.triggerInputEvent(value);
+  }
+
+  handleKeyUp = (e) => {
+    const value = e.key;
+    console.log('handleKeyUp', e);
+
+    // this.triggerInputEvent(value);
+    const validatedInput = this.getValidInputs(value);
+
+    if (validatedInput) {
+      const btn = this.buttons[value];
+      btn.el.style.background = btn.theme.background;
+    }
+
+
   }
 
   handleBtnOnClick(value) {
@@ -613,6 +656,21 @@ class Calculator {
     const validatedInput = this.getValidInputs(value);
 
     if (validatedInput) {
+      const btn = this.buttons[value];
+      btn.el.style.background = btn.theme.hover;
+
+
+
+
+
+
+
+
+
+
+
+
+
       switch(value) {
         case 'Backspace':
           this.removeLastInputValue();
@@ -731,57 +789,89 @@ class Calculator {
 
           let color = this.theme.color;
           let background = this.theme.button;
+          let hover = this.theme.buttonHover;
+          let pressed = this.theme.buttonPress;
+          let type;
           const events = {
             click: () => this.handleBtnOnClick(value)
           };
 
           // Operator Input
           if (calcUtil.isOperator(value)) {
-            background = '#f59315';
+            type = 'operator';
+            // background = '#f59315';
+            background = this.theme.buttonOp;
             color = this.theme.buttonAction;
           } else if (value === 'clear') {
-            background = '#3b0202';
+            type = 'clear';
+            // background = '#3b0202';
+            background = this.theme.buttonClr;
             color = '#f51515';
           } else if (value === ACTION.EQUALS) {
-            background = '#5bce09';
+            type = 'compute';
+            // background = '#5bce09';
+            background = this.theme.buttonComp;
             color = this.theme.buttonAction;
           // Assign Style Events
           } else {
-            events.mouseenter = (e, el) => el.style.background = this.theme.buttonHover;
-            events.mousedown = (e, el) => el.style.background = this.theme.buttonPress;
-            events.keydown = (e, el) => el.style.background = this.theme.buttonPress;
-            events.keyup = (e, el) => el.style.background = this.theme.button;
-            events.mouseup = (e, el) => el.style.background = this.theme.buttonHover;
-            events.mouseleave = (e, el) => el.style.background = this.theme.button;
+            type = 'default';
+            events.mouseenter = (e, el) => el.style.background = hover;
+            events.mousedown = (e, el) => el.style.background = pressed;
+            events.keydown = (e, el) => el.style.background = pressed;
+            events.keyup = (e, el) => el.style.background = background;
+            events.mouseup = (e, el) => el.style.background = hover;
+            events.mouseleave = (e, el) => el.style.background = background;
           }
 
 
-          console.log('background', background, this);
+          // console.log('background', background, this);
+
+
+
+          const el = Spawn({
+            ...btn,
+            events,
+            style: {
+              background,
+              borderRadius: '6px',
+              borderStyle: 'none',
+              color,
+              width: _.toPx(width),
+              height: _.toPx(height),
+              cursor: 'pointer'
+            },
+            type: 'button'
+          });
 
           // Button Container
-          return Spawn({
+          const elContainer = Spawn({
             style: {
               display: 'inline-block',
               padding: _.toPx(spacer)
             },
             children: [
               // Button
-              Spawn({
-                ...btn,
-                events,
-                style: {
-                  background,
-                  borderRadius: '6px',
-                  borderStyle: 'none',
-                  color,
-                  width: _.toPx(width),
-                  height: _.toPx(height),
-                  cursor: 'pointer'
-                },
-                type: 'button'
-              })
+              el
             ]
           });
+
+
+          console.log('renderBtns', el, elContainer, btn);
+          // this.buttonEls[btn.value] = el;
+          this.buttons[btn.value] = {
+            el,
+            type,
+            theme: {
+              color,
+              background,
+              hover,
+              pressed
+            },
+            ...btn
+          };
+
+
+          return elContainer;
         })
       }));
     });

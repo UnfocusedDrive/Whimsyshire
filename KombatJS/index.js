@@ -7,7 +7,7 @@
  *
  *
  *
- * Kombat JS. Aka Mortal Kombat JS.
+ * KombatJS. Aka Mortal Kombat JS.
  *
  * Results:
  * ....
