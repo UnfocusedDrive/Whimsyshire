@@ -16,7 +16,7 @@
  *    - Enter/Equals to computer / Backspace to remove last character
  *
  * References:
- *  UI Design {author} : https://dribbble.com/shots/6144137-Calculator-App-iOS-13/attachments/6144137-Calculator-App-iOS-13?mode=media
+ *  UI Design {author} : https://dribbble.com/shots/6144137-Calculator-App-iOS-13
  *  CodePen: https://codepen.io/anthonykoch/pen/xVQOwb?editors=0010
  *   adsd : https://www.freecodecamp.org/news/how-to-build-an-html-calculator-app-from-scratch-using-javascript-4454b8714b98/
  *
@@ -26,6 +26,10 @@
 
 
  * NEXT:
+ * Update / Icon for divider
+ * Add formatted to input and prev input -- addds commas, styles colors, adds spaces
+ * = with no compute will just send to other value -- add animation like google calc example
+ * C - To Clear all INPUT
  * Finish KEYBOARD redirect .. ENTER => EQUALS, EQUALS => EQUALS
  * CHange div symbol to /
  * Fix border radius on buttons and calculator
@@ -69,55 +73,25 @@ const DEFAULT_VALUE = '0';
 
 // Color Palette
 const COLOR_PALETTE = {
-  // BLACK: '#000000',
-  // WHITE: '#ffffff',
-
-  // GRAY_2: '#242424',
-  // GRAY_3: '#484848',
-  // GRAY_4: '#eef0f9',
-  // GRAY_5: '#858585',
-
-
-
-
-  // ORANGE: '#f59315',
-
-  // RED_1: '#3b0202',
-  // RED_2: '#f51515',
-  // GREEN: '#5bce09',
-
-
-
-  // verified below....
   WHITE_00: '#ffffff',
   GRAY_00: '#141414',
   GRAY_10: '#17181A',
   GRAY_20: '#222427',
-  // + 6% Lightness
-  GRAY_30: '#2f3237',
+  GRAY_30: '#2f3237', // + 6% Lightness
+  GRAY_40: '#3e4147', // + 6% Lightness
   GRAY_80: '#88898A',
-  // + 6% Lightness
-  GRAY_40: '#3e4147',
   BLACK_00: '#000000',
   GREEN_10: '#2EC973',
-  // + 6% Lightness
-  GREEN_20: '#40d482',
-  // + 6% Lightness
-  GREEN_30: '#59d993',
+  GREEN_20: '#40d482', // + 6% Lightness
+  GREEN_30: '#59d993', // + 6% Lightness
   YELLOW_10: '#FF9500',
-  // + 6% Lightness
-  YELLOW_20: '#ffa21f',
-  // + 6% Lightness
-  YELLOW_30: '#ffae3d',
-
+  YELLOW_20: '#ffa21f', // + 6% Lightness
+  YELLOW_30: '#ffae3d', // + 6% Lightness
   YELLOW_80: '#8B570D',
   RED_10: '#F6444E',
-  // - 6% Lightness
-  RED_60: '#562f39',
-  // - 6% Lightness
-  RED_70: '#42242c',
+  RED_60: '#562f39', // - 6% Lightness
+  RED_70: '#42242c', // - 6% Lightness
   RED_80: '#2D191E'
-
 };
 
 // Arithmic Operators
@@ -238,7 +212,6 @@ const GLOBAL_INPUTS = [
 const _ = {
   camel2Kebab: str => str.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join(''),
   chunkArr: (arr, chunkSize) => {
-
     const chunks = [];
     for (let i = 0; i < arr.length; i+=chunkSize) {
       chunks.push(arr.slice(i, i + chunkSize));
@@ -260,6 +233,12 @@ const _ = {
   isNode: val => {
     return typeof val === 'object' ? Boolean(val.nodeType === 1) : false;
   },
+  /**
+   * Check if value is number
+   * @param {*} value - value to check
+   * @returns {boolean} true if number
+   */
+  isNumber: value => typeof value === 'number',
   num2Str: val => `${parseInt(val, 10)}`,
   toPx: num => `${num}px`,
   toStr: val => `${val}`,
@@ -431,14 +410,18 @@ const calcUtil = {
     });
 
     return total;
-    // return _.toStr(total);
   },
+  /**
+   *
+   * @param {*} value
+   * @returns
+   */
   isOperator(value) {
     switch (value) {
-      case '+':
-      case '-':
-      case '*':
-      case '/':
+      case OPERATOR.ADD:
+      case OPERATOR.SUBTRACT:
+      case OPERATOR.MULTIPY:
+      case OPERATOR.DIVIDE:
         return true;
       default:
         return false;
@@ -461,10 +444,13 @@ const Spawn = (props = {}) => {
     name,
     label,
     style,
-    type = 'div',
-    value
+    tag = 'div',
+    // type = 'div',
+    value,
+    // Convert rest props to attrs
+    ...restProps
   } = props;
-  const el = document.createElement(type);
+  const el = document.createElement(tag);
 
   const appendChildren = (children) => {
     let fmChildren = children;
@@ -502,7 +488,19 @@ const Spawn = (props = {}) => {
 
   // Attach Style
   if (style) {
-    el.setAttribute('style', Object.keys(style).map(key => `${_.camel2Kebab(key)}: ${style[key]};`).join(' '));
+    el.setAttribute('style', Object.keys(style).map(key => {
+
+      const trasodky = _.isNumber(style[key]);
+      // console.log('trasodky', trasodky, style[key]);
+      // number default to px
+      let value = style[key];
+      if (_.isNumber(value)) {
+        value = _.toPx(value);
+      }
+      // if
+
+      return `${_.camel2Kebab(key)}: ${value};`
+    }).join(' '));
   }
 
   // Attach Class Name
@@ -515,6 +513,9 @@ const Spawn = (props = {}) => {
     const lbl = document.createTextNode(lblNode);
     el.appendChild(lbl);
   }
+
+  // .. spread down the rest to html attrs
+  Object.keys(restProps).forEach(key => el.setAttribute(key, restProps[key]));
 
   appendChildren(children);
 
@@ -534,41 +535,17 @@ const Spawn = (props = {}) => {
  */
 class Calculator {
   constructor(props = {}) {
-    const { input = DEFAULT_VALUE, parentEl, style, theme } = props;
+    const {
+      className = '',
+      input = DEFAULT_VALUE,
+      parentEl,
+      style,
+      theme
+  } = props;
 
     this.buttons = {};
-    // this.buttonEls = {};
     this.input = input;
-    // this.theme = {
-    //   background: COLOR_PALETTE.GRAY_10,
-    //   // Default Button
-    //   button: COLOR_PALETTE.GRAY_20,
-    //   buttonHover: COLOR_PALETTE.GRAY_30,
-    //   buttonPress: COLOR_PALETTE.GRAY_40,
-
-
-    //   buttonAction: COLOR_PALETTE.WHITE_00,
-
-    //   // Operator Button
-    //   buttonOp: COLOR_PALETTE.YELLOW_10,
-    //   buttonOpHover: COLOR_PALETTE.GRAY_30,
-    //   buttonOpPress: COLOR_PALETTE.GRAY_40,
-
-    //   // Clear Button
-    //   buttonClr: '#3b0202',
-    //   buttonClrHover: COLOR_PALETTE.GRAY_30,
-    //   buttonClrPress: COLOR_PALETTE.GRAY_40,
-    //   buttonClrFont: '#f51515',
-    //   // Compute Button
-    //   buttonComp: '#5bce09',
-    //   buttonCompHover: COLOR_PALETTE.GRAY_30,
-    //   buttonCompPress: COLOR_PALETTE.GRAY_40,
-
-    //   color: COLOR_PALETTE.WHITE_00,
-    //   displayColor: COLOR_PALETTE.WHITE,
-    //   ...theme
-    // };
-
+    // this.input = 25;
     this.theme = this.getTheme(theme);
 
 
@@ -578,47 +555,57 @@ class Calculator {
       overflow: 'hidden'
     };
 
-
     // Display Input Element
     this.inputEl = Spawn({
-      children: input,
+      // children: input,
+      // add formatter...
+      children: 12545,
       style: {
         whiteSpace: 'nowrap',
-        float: 'right'
+        float: 'right',
+        fontSize: 20
       }
     });
+    // Display Last Calculated Input Element
     this.prevInputEl = Spawn({
-      children: ''
+      children: input,
+      style: {
+        fontSize: 14
+      }
     });
     this.el = Spawn({
-      className: 'js-calculator',
-      children: [
-        Spawn({
-          children: this.prevInputEl,
-          style: {
-            color: this.theme.displayColor,
-            // fixed height so does not shify
-            height: '20px',
-            ...txtStyle
-          }
-        }),
-
-        Spawn({
-          children: this.inputEl,
-          style: {
-            color: this.theme.displayColor,
-            height: '100px',
-            ...txtStyle
-          }
-        })
-      ],
       parentEl,
+      className: [className, 'js-calculator'].join(' '),
+      children: Spawn({
+        children: [
+          Spawn({
+            children: this.prevInputEl,
+            style: {
+              color: this.theme.displayColor,
+              // fixed height so does not shify
+              height: 20,
+              ...txtStyle
+            }
+          }),
+          Spawn({
+            children: this.inputEl,
+            style: {
+              color: this.theme.displayColor,
+              height: 100,
+              ...txtStyle
+            }
+          })
+        ],
+        style: {
+          padding: 10
+        }
+      }),
       style: {
         background: this.theme.background,
-        borderRadius: '4px',
+        borderRadius: 20,
         display: 'inline-block',
-        padding: '10px',
-        width: '260px',
+        padding: 10,
+        width: 260,
         boxSizing: 'border-box',
         ...style
       }
@@ -924,21 +911,23 @@ class Calculator {
             events,
             style: {
               background,
-              borderRadius: '6px',
+              // borderRadius: 6,
+              borderRadius: 10,
               borderStyle: 'none',
               color,
-              width: _.toPx(width),
-              height: _.toPx(height),
-              cursor: 'pointer'
+              width,
+              height,
+              cursor: 'pointer',
+              fontFamily: `'Roboto', sans-serif`
             },
-            type: 'button'
+            tag: 'button'
           });
 
           // Button Container
           const elContainer = Spawn({
             style: {
               display: 'inline-block',
-              padding: _.toPx(spacer)
+              padding: spacer
             },
             children: [
               // Button
@@ -947,7 +936,7 @@ class Calculator {
           });
 
 
-          console.log('renderBtns', el, elContainer, btn);
+          // console.log('renderBtns', el, elContainer, btn);
           // this.buttonEls[btn.value] = el;
           this.buttons[btn.value] = {
             el,
@@ -988,21 +977,89 @@ class App {
       }
     });
 
+    const calcContainer = Spawn();
+
+
+
+
+    // JS logo color
+
     // Getting Started
     Spawn({
       parentEl: el,
       children: [
         Spawn({
-          children: 'JS Calculator',
+          children: [
+            Spawn({
+              children: 'JS',
+              style: {
+                display: 'inline-flex',
+                background: '#ff005e',
+                // #ff1f71
+                //#ff3d84
+                width: 26,
+                height: 26,
+                fontSize: 14,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                marginRight: 6,
+              }
+            }),
+            // Spacer...
+            // Spawn({
+            //   style: {
+            //     width: 6,
+            //     height: 10,
+            //     display: 'inline-block'
+            //   }
+            // }),
+            // 'JS',
+            'Calculator'
+          ],
           style:{
-            color: COLOR_PALETTE.WHITE_00
+            color: COLOR_PALETTE.WHITE_00,
+            fontSize: 16,
+            display: 'flex',
+            alignItems: 'center'
           }
         }),
         Spawn({
           children: 'Use keyboard or click buttons to calculate!',
           style:{
-            color: COLOR_PALETTE.WHITE_00,
-            marginTop: '10px'
+            color: '#dddddd',
+            // fontSize: '14px',
+            fontSize: 12,
+            marginTop: 8
+          }
+        }),
+        calcContainer,
+        Spawn({
+          children: [
+            'Inspired by Nicat Manafov',
+            ' @ ',
+            Spawn({
+              tag: 'a',
+              href: 'https://dribbble.com/shots/6144137-Calculator-App-iOS-13',
+              children: 'dribbble.com',
+              style: {
+                color: '#ff005e',
+                textDecoration: 'none'
+              },
+              events: {
+                mouseenter: (e, el) => el.style.color = '#ff3d84',
+                mousedown: (e, el) => el.style.color = '#ff70a5',
+                mouseup: (e, el) => el.style.color = '#ff3d84',
+                mouseleave: (e, el) => el.style.color = '#ff005e'
+              }
+            })
+          ],
+          style:{
+            color: '#ffffff',
+            fontSize: 12,
+            fontFamily: `'Dancing Script', cursive`,
+            marginTop: 8,
+            textAlign: 'center'
           }
         })
       ]
@@ -1010,15 +1067,34 @@ class App {
 
     const calculator = new Calculator({
       // Append calculator to App
-      parentEl: el,
+      parentEl: calcContainer,
       style: {
-        marginTop: '30px'
+        marginTop: 20
       },
+      className: 'my special',
       ...calculatorProps
     });
 
+
+    // Import External Fonts
+    [
+      'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
+      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap" rel="stylesheet'
+    ].forEach(href => {
+      Spawn({
+        parentEl: document.head,
+        tag: 'link',
+        rel: 'stylesheet',
+        type: 'text/css',
+        href
+      });
+    });
+
     // Custom App Styles
-    document.body.style.background = COLOR_PALETTE.GRAY_00;
+    // from : https://www.eggradients.com/category/purple-gradient
+    document.body.style.backgroundColor = '#a4508b';
+    document.body.style.backgroundImage = 'linear-gradient(326deg, #a4508b 0%, #5f0a87 74%)';
+    document.body.style.fontFamily = `'Roboto', sans-serif`;
 
     return this;
   }
@@ -1027,6 +1103,9 @@ class App {
 const run = new App({
   calculatorProps: {
     // Start Input Value for Calculator
-    input: '0+(12+(2+(3+(1+7'
+    // testing
+    // input: '0+(12+(2+(3+(1+7',
+    // USE this for final
+    input: '45+(1250*100)/10'
   }
 });
