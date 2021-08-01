@@ -141,7 +141,7 @@ const INPUTS = [
     value: ')'
   },
   {
-    label: '÷',
+    // label: '÷',
     value: '/'
   },
   {
@@ -211,11 +211,36 @@ const GLOBAL_INPUTS = [
 // Common Util
 const _ = {
   camel2Kebab: str => str.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join(''),
-  chunkArr: (arr, chunkSize) => {
+  /**
+   * Split input into array of even sized chunks
+   * @param {string|array} input - input to chunk
+   * @param {number} chunkSize - chunk input by every n size
+   * @returns {array} of chunks from source input
+   */
+  splitToChunks: (arr, chunkSize) => {
     const chunks = [];
     for (let i = 0; i < arr.length; i+=chunkSize) {
       chunks.push(arr.slice(i, i + chunkSize));
     }
+    return chunks;
+  },
+  /**
+   * Split input into array of even sized chunks starting from the last value
+   * @param {string|array} input - input to chunk
+   * @param {number} chunkSize - chunk input by every n size
+   * @returns {array} of chunks from source input
+   */
+  splitToChunksRight: (arr, chunkSize) => {
+    const chunks = [];
+    for (let i = arr.length; i > 0; i-=chunkSize) {
+      // chunks.push(arr.slice(i, i + chunkSize));
+      chunks.unshift(arr.slice(Math.max(0, i - chunkSize), i));
+      // console.log('splitToChunksRight', i - chunkSize, i, arr[i]);
+    }
+
+
+    // console.log('splitToChunksRight', chunks, arr, arr.length, chunkSize);
+
     return chunks;
   },
   getLabel: arr => {
@@ -254,7 +279,10 @@ const _ = {
 };
 
 
-// Calculator Util
+/**
+ * Calculator Util
+ * All the calculator operations are computed from here.
+ */
 const calcUtil = {
   computeValue(total, operator, value) {
     switch (operator) {
@@ -269,22 +297,64 @@ const calcUtil = {
         return total + value;
     }
   },
-  // return number
-  getComputeChain(arr, cb) {
+  // /**
+  //  * Get Compute Chain
+  //  * @param {*} arr - Array to compute chain
+  //  * @param {*} cb - callback for each chain
+  //  * @returns {*} value from cb()
+  //  */
+  // getComputeChain(arr, cb) {
+  //   const lastItem = arr[arr.length -1];
+  //   const more = Array.isArray(lastItem);
+  //   if (more) {
+
+  //     return cb(arr.slice(0,-1)) + this.getComputeChain(lastItem, cb);
+
+
+  //     // return [
+  //     //   cb(arr.slice(0,-1)),
+  //     //   this.getComputeChain(lastItem, cb),
+  //     // ];
+  //   }
+
+  //   return cb(arr);
+  // },
+  /**
+   * Get Compute Chain
+   * @param {*} arr - Array to compute chain
+   * @param {*} cb - callback for each chain
+   * @returns {*} value from cb()
+   */
+   getComputeChainFor(arr, cb) {
     const lastItem = arr[arr.length -1];
     const more = Array.isArray(lastItem);
     if (more) {
 
-      return this.getTotal(arr.slice(0,-1)) + this.getComputeChain(lastItem, cb);
+      return cb(
+        arr.slice(0,-1),
+        this.getComputeChainFor(lastItem, cb)
+      );
 
 
       // return [
-      //   this.getTotal(arr.slice(0,-1)),
+      //   cb(arr.slice(0,-1)),
       //   this.getComputeChain(lastItem, cb),
       // ];
     }
 
-    return this.getTotal(arr);
+    return cb(arr);
+  },
+  getFormattedDisplayValue(str) {
+    const chunks = _.splitToChunksRight(str, 3);
+    const f = chunks.join(',');
+
+
+    console.log('getFormattedDisplayValue', f, chunks);
+    return f;
+
+
+    // console.log('chunks', chunks);
+    // return str.split('').
   },
   // input => str
   // [ops] => arr
@@ -355,12 +425,17 @@ const calcUtil = {
 
       // Create New Array from group key
       let formattedInput = currentValue;
+      // let formattedInput = Spawn({
+      //   children: currentValue
+      // });
       if (currentValue === '(') {
         chainLevel++;
         formattedInput = [];
       } else if (currentValue === ')') {
         // chainLevel--;
       }
+
+
 
       // console.log('lastChain', i, lastChain, acc);
       // console.log('groupInput', i, arr[i], acc)
@@ -390,13 +465,12 @@ const calcUtil = {
   getTotal(arr) {
     // const f = this.computeInputChain(arr);
     // const a = this.getMergedValues(arr);
-    // console.log('getTotal', a, arr);
 
     let total = 0;
     let operator = OPERATOR.ADD;
-
+//
     const mergedValues = this.getMergedValues(arr);
-    // console.log('mergedValues', mergedValues);
+    console.log('mergedValues', mergedValues);
 
     mergedValues.forEach(node => {
         const value = Number.parseFloat(node, 10);
@@ -408,6 +482,9 @@ const calcUtil = {
         operator = node;
       }
     });
+
+    console.log('getTotal', total, arr);
+
 
     return total;
   },
@@ -430,10 +507,11 @@ const calcUtil = {
 };
 
 /**
- * Spawn DOM
- * Generates HTML elements
- * @param {element} parentEl - parent element to spawn into
- * @returns {element}
+ * Spawn DOM (The Document Object Model)
+ * The Spawn Engine is a stateless virtual DOM generator.
+ * @param {object|string} props - props of the Spawn
+ * @param {element} props.parentEl - parent element to spawn into
+ * @returns {element} reference of your Spawn
  */
 const Spawn = (props = {}) => {
   const {
@@ -450,6 +528,12 @@ const Spawn = (props = {}) => {
     // Convert rest props to attrs
     ...restProps
   } = props;
+
+
+  if (typeof props === 'string') return document.createTextNode(props);
+
+  // console.log('props', props);
+
   const el = document.createElement(tag);
 
   const appendChildren = (children) => {
@@ -555,11 +639,15 @@ class Calculator {
       overflow: 'hidden'
     };
 
+    const tVal = 12545;
+    // this.getCalculatedInput();
+
+
     // Display Input Element
     this.inputEl = Spawn({
       // children: input,
       // add formatter...
-      children: 12545,
+      // children: calcUtil.getFormattedDisplayValue(_.toStr(tVal), 3),
       style: {
         whiteSpace: 'nowrap',
         float: 'right',
@@ -568,7 +656,7 @@ class Calculator {
     });
     // Display Last Calculated Input Element
     this.prevInputEl = Spawn({
-      children: input,
+      // children: input,
       style: {
         fontSize: 14
       }
@@ -617,6 +705,7 @@ class Calculator {
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
 
+    this.calculateInput();
 
     console.log('constructor', this);
   }
@@ -658,17 +747,52 @@ class Calculator {
   }
 
   // @returns {string}
-  getCalculatedInput() {
-    const mergedInput = calcUtil.getMergedOps(this.input, []);
+  getCalculatedInput(str = this.input) {
+    const mergedInput = calcUtil.getMergedOps(str, []);
     const chain = calcUtil.getInputChain(mergedInput);
-    const total = calcUtil.getComputeChain(chain);
+    // const total = calcUtil.getComputeChain(chain, arr => calcUtil.getTotal(arr));
+    const test = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = []) => {
+      return [...calcUtil.getMergedValues(arr), ...lastCompute];
+    }).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
 
-    // console.log('resukt', total);
-    return {
-      mergedInput,
-      chain,
-      total: `${total}`
+    // new total is here
+    const test2 = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = 0) => {
+
+      const t = calcUtil.getMergedValues(arr);
+      const j = t.map(res => {
+
+        if (calcUtil.isOperator(res)) {
+          return Spawn({
+            children: res
+          });
+        } else {
+          return Spawn({
+            children: res
+          });
+        }
+      });
+``
+      // console.log('t', arr, j, t);
+      // return [t, ...lastCompute];
+      return calcUtil.getTotal(t) + lastCompute;
+    });
+
+    const res = {
+      // mergedInput,
+      input: mergedInput,
+      // this_input: this.input,
+      // chain,
+      // total: `${total}`,
+      prevInputEl: test,
+      // test,
+      // test2,
+      total: _.toStr(test2)
     };
+
+
+    console.log('getCalculatedInput', res);
+
+    return res;
 
   }
 
@@ -765,11 +889,53 @@ class Calculator {
   }
 
   calculateInput() {
-    const { mergedInput, total } = this.getCalculatedInput();
+    const { prevInputEl, input, total } = this.getCalculatedInput();
 
     // Save reference of last used arithmatic
-    const prevInput = mergedInput === total ? '' : mergedInput;
-    this.prevInputEl.innerHTML = prevInput;
+    this.prevInputEl.innerHTML = '';
+    if (input !== total) {
+      prevInputEl.forEach(item => {
+          let el;
+          let children = item;
+
+
+
+          if (calcUtil.isOperator(children)) {
+            // special format
+            const filter = INPUTS.filter(z => z.value === children);
+            if (filter.length && filter[0].label) {
+              console.log('filter', filter, children);
+              children = filter[0].label.toLowerCase();
+            }
+
+            el = Spawn({
+              tag: 'span',
+              children,
+              style: {
+                color: 'red'
+              }
+            })
+            //   children: children
+            // });
+          } else {
+            el = Spawn(children);
+            // return Spawn({
+              // children: children
+            // });
+          }
+
+          // return el;
+
+          this.prevInputEl.appendChild(el);
+      })
+    }
+    // const prevInput = input === total ? '' : input;
+    // this.prevInputEl.innerHTML = prevInput;
+
+
+
+    // this.prevInputEl.replaceChildren(prevInputEl);
+    // this.prevInputEl.innerHTML
 
     // this.input = total;
     // Update Display
@@ -832,14 +998,14 @@ class Calculator {
     this.input = value;
 
     // Update Display
-    this.inputEl.innerHTML = value;
+    this.inputEl.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(value), 3);
   }
 
   /**
    * Render Buttons on Calculator
    */
   renderBtns() {
-    _.chunkArr(this.getButtons(), 4).forEach((group, j) => {
+    _.splitToChunks(this.getButtons(), 4).forEach((group, j) => {
       this.el.appendChild(Spawn({
         children: group.map((btn, i) => {
           const { value } = btn;
@@ -1079,7 +1245,7 @@ class App {
     // Import External Fonts
     [
       'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
-      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap" rel="stylesheet'
+      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap'
     ].forEach(href => {
       Spawn({
         parentEl: document.head,
@@ -1105,7 +1271,7 @@ const run = new App({
     // Start Input Value for Calculator
     // testing
     // input: '0+(12+(2+(3+(1+7',
-    // USE this for final
+    // USE this for final demo
     input: '45+(1250*100)/10'
   }
 });
