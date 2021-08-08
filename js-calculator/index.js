@@ -1,11 +1,13 @@
 /**
- * JS Calculator
+ * JS (JavaScript) Calculator @ v1.0.0
  *
  * Objectives/Constraints:
  *  - Easy Import and Customize into any App
  *  - Single JS file for entire setup
  *  - No External Libraries
+ *  - No HTML tags or CSS selectors were harmed in the making of this exercise.
  *  - Theme Token Support
+ *  - Desktop version only - if you want mobile I may add support
  *
  * Functionality:
  *  - Math calculator with nested level computation
@@ -20,13 +22,22 @@
  *  CodePen: https://codepen.io/anthonykoch/pen/xVQOwb?editors=0010
  *   adsd : https://www.freecodecamp.org/news/how-to-build-an-html-calculator-app-from-scratch-using-javascript-4454b8714b98/
  *
+ * https://codepen.io/giana/pen/GJMBEv (the animation is cool)
+ * https://codepen.io/mjijackson/pen/xOzyGX (has cool scale technique when too many value)
+ *
+ *
+ * want to see the src github? and the hisotical progression? go here url: .......
+ *
  *  Comments/questions/requests? Feel free to reach out to me!
  *
  *
 
 
  * NEXT:
- * Update / Icon for divider
+ * on change theme, spin and shrink, then grow to normal size with new values.. (use the gear spin animation)
+ * boost operator color diffs by 2x for hover, pressed
+ * don't show commas when adding input... and dont do for decimals..
+ * [done] Update / Icon for divider
  * Add formatted to input and prev input -- addds commas, styles colors, adds spaces
  * = with no compute will just send to other value -- add animation like google calc example
  * C - To Clear all INPUT
@@ -281,7 +292,7 @@ const _ = {
 
 /**
  * Calculator Util
- * All the calculator operations are computed from here.
+ * All the calculations are belong to us.
  */
 const calcUtil = {
   computeValue(total, operator, value) {
@@ -996,7 +1007,7 @@ class Calculator {
    */
   updateInput(value) {
     this.input = value;
-
+    // ONLY DO THIS AFTER A CALCULATION.....
     // Update Display
     this.inputEl.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(value), 3);
   }

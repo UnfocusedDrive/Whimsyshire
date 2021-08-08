@@ -1274,11 +1274,58 @@ class Character {
     document.body.addEventListener('keyup', this.handleKeyUp);
   }
 
+  updateSpriteSet(value) {
+    let sprite;
+    switch (value) {
+      case 'walk':
+        sprite = SUB_ZERO_SPRITE.walk;
+        break;
+      case 'stance':
+      default:
+        sprite = SUB_ZERO_SPRITE.stance;
+    }
+
+    // assign
+    this.state.sprite = sprite;
+    // replace 1st frame
+    // this.el.innerHTML = this.state.sprite[0];
+    // this.updateElFrame(this.state.sprite[0]);
+  }
+
+  updateElFrame(frame) {
+
+
+
+    // console.log('updateElFrame', frame);
+
+    // if (!frame) {
+    //   debugger
+    // }
+
+    this.el.innerHTML = frame;
+  }
+
   animate = (count = 0) => {
-    const position = count % this.state.sprite.length;
-    // console.log('animateMe', count, position);
+    // return;
+    let position = count % this.state.sprite.length;
+    // console.log('animateMe', count, position, this.state.sprite[position]);
+
+    // if (position > this.state.sprite.length-1) {
+    //   debugger
+    // }
+    // replace sprite frame every n seconds
     setTimeout(() => {
-      this.el.innerHTML = this.state.sprite[position];
+      // this.el.innerHTML = this.state.sprite[position];
+
+
+
+      // if frame set is swapped during timeout then reset to 0
+      if (!this.state.sprite[position]) {
+        // debugger??
+        position = 0;
+      }
+
+      this.updateElFrame(this.state.sprite[position||0]);
       this.animate(count + 1);
     }, 100);
   }
@@ -1309,7 +1356,10 @@ class Character {
 
       if (!this.state.isMoving) {
         this.state.isMoving = true;
-        this.state.sprite = SUB_ZERO_SPRITE.walk;
+
+        // this.state.sprite = SUB_ZERO_SPRITE.walk;
+        this.updateSpriteSet('walk');
+
         this.move();
       }
     }
@@ -1318,7 +1368,8 @@ class Character {
   handleKeyUp = (e) => {
     this.state.isMoving = false;
     this.state.direction = null;
-    this.state.sprite = SUB_ZERO_SPRITE.stance;
+    // this.state.sprite = SUB_ZERO_SPRITE.stance;
+    this.updateSpriteSet('stance');
   }
 
   stopMove = (e) => {
@@ -1327,7 +1378,6 @@ class Character {
 
   move = (e) => {
     const inc = 1;
-
 
     if (this.state.isMoving && this.state.move) {
       if (this.state.move === 'right') {
