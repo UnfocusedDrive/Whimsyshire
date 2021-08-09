@@ -34,9 +34,11 @@
 
 
  * NEXT:
+ * STYLE:
+ *   INPUT -- Operational colors should be white
  * on change theme, spin and shrink, then grow to normal size with new values.. (use the gear spin animation)
  * boost operator color diffs by 2x for hover, pressed
- * don't show commas when adding input... and dont do for decimals..
+ * [done] don't show commas when adding input... and dont do for decimals..
  * [done] Update / Icon for divider
  * Add formatted to input and prev input -- addds commas, styles colors, adds spaces
  * = with no compute will just send to other value -- add animation like google calc example
@@ -308,28 +310,7 @@ const calcUtil = {
         return total + value;
     }
   },
-  // /**
-  //  * Get Compute Chain
-  //  * @param {*} arr - Array to compute chain
-  //  * @param {*} cb - callback for each chain
-  //  * @returns {*} value from cb()
-  //  */
-  // getComputeChain(arr, cb) {
-  //   const lastItem = arr[arr.length -1];
-  //   const more = Array.isArray(lastItem);
-  //   if (more) {
 
-  //     return cb(arr.slice(0,-1)) + this.getComputeChain(lastItem, cb);
-
-
-  //     // return [
-  //     //   cb(arr.slice(0,-1)),
-  //     //   this.getComputeChain(lastItem, cb),
-  //     // ];
-  //   }
-
-  //   return cb(arr);
-  // },
   /**
    * Get Compute Chain
    * @param {*} arr - Array to compute chain
@@ -340,17 +321,10 @@ const calcUtil = {
     const lastItem = arr[arr.length -1];
     const more = Array.isArray(lastItem);
     if (more) {
-
       return cb(
         arr.slice(0,-1),
         this.getComputeChainFor(lastItem, cb)
       );
-
-
-      // return [
-      //   cb(arr.slice(0,-1)),
-      //   this.getComputeChain(lastItem, cb),
-      // ];
     }
 
     return cb(arr);
@@ -622,7 +596,6 @@ const Spawn = (props = {}) => {
   return el;
 };
 
-
 /**
  * Calculator App Component
  * Accepts onKey or Click Events
@@ -640,9 +613,7 @@ class Calculator {
 
     this.buttons = {};
     this.input = input;
-    // this.input = 25;
     this.theme = this.getTheme(theme);
-
 
     // Text Input Style
     const txtStyle = {
@@ -650,28 +621,23 @@ class Calculator {
       overflow: 'hidden'
     };
 
-    const tVal = 12545;
-    // this.getCalculatedInput();
-
-
     // Display Input Element
     this.inputEl = Spawn({
-      // children: input,
-      // add formatter...
-      // children: calcUtil.getFormattedDisplayValue(_.toStr(tVal), 3),
       style: {
         whiteSpace: 'nowrap',
         float: 'right',
         fontSize: 20
       }
     });
+
     // Display Last Calculated Input Element
     this.prevInputEl = Spawn({
-      // children: input,
       style: {
-        fontSize: 14
+        fontSize: 14,
+        color: '#878889'
       }
     });
+
     this.el = Spawn({
       parentEl,
       className: [className, 'js-calculator'].join(' '),
@@ -711,14 +677,12 @@ class Calculator {
     });
 
     this.renderBtns();
-    // this.calculateInput();
-    // keydown instead of keypress to handle backspace
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
-
     this.calculateInput();
 
     console.log('constructor', this);
+    return this;
   }
 
 
@@ -761,14 +725,14 @@ class Calculator {
   getCalculatedInput(str = this.input) {
     const mergedInput = calcUtil.getMergedOps(str, []);
     const chain = calcUtil.getInputChain(mergedInput);
-    // const total = calcUtil.getComputeChain(chain, arr => calcUtil.getTotal(arr));
-    const test = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = []) => {
+
+    // split into separate fn....
+    const inputAsArray = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = []) => {
       return [...calcUtil.getMergedValues(arr), ...lastCompute];
     }).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
 
     // new total is here
-    const test2 = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = 0) => {
-
+    const total = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = 0) => {
       const t = calcUtil.getMergedValues(arr);
       const j = t.map(res => {
 
@@ -782,29 +746,19 @@ class Calculator {
           });
         }
       });
-``
-      // console.log('t', arr, j, t);
-      // return [t, ...lastCompute];
+
       return calcUtil.getTotal(t) + lastCompute;
     });
 
     const res = {
-      // mergedInput,
       input: mergedInput,
-      // this_input: this.input,
-      // chain,
-      // total: `${total}`,
-      prevInputEl: test,
-      // test,
-      // test2,
-      total: _.toStr(test2)
+      inputAsArray: inputAsArray,
+      total: _.toStr(total)
     };
-
 
     console.log('getCalculatedInput', res);
 
     return res;
-
   }
 
   /**
@@ -815,13 +769,56 @@ class Calculator {
     return INPUTS;
   }
 
+  updateInputDisplay(displayEl, inputArray) {
+    // Save reference of last used arithmatic
+    displayEl.innerHTML = '';
+    // if (input !== total) {
+    if (true) {
+      inputArray.forEach(item => {
+          let el;
+          let children = item;
+
+          if (calcUtil.isOperator(children)) {
+            // special format
+            const filter = INPUTS.filter(z => z.value === children);
+            if (filter.length && filter[0].label) {
+              console.log('filter', filter, children);
+              children = filter[0].label.toLowerCase();
+            }
+
+            el = Spawn({
+              tag: 'span',
+              children,
+              style: {
+                // color: 'red'\
+                color: '#8B570D'
+              }
+            })
+            //   children: children
+            // });
+          } else {
+            el = Spawn(children);
+            // return Spawn({
+              // children: children
+            // });
+          }
+
+          // return el;
+
+          displayEl.appendChild(el);
+      })
+    }
+  }
+
   getValidInputs(value) {
 
     const formattedValue =
     console.log('getValidInputs', value);
     const result = [...INPUTS, ...GLOBAL_INPUTS].map(o => `${o.value}`).indexOf(`${value}`) > -1;
-    debugger
+    // debugger
 
+
+    // Return value instead of T/F
     return result;
   }
 
@@ -886,6 +883,7 @@ class Calculator {
         case 'Enter':
           this.calculateInput();
           break;
+        // Add Value to Input
         default:
           this.appendInputValue(value);
       }
@@ -900,62 +898,12 @@ class Calculator {
   }
 
   calculateInput() {
-    const { prevInputEl, input, total } = this.getCalculatedInput();
+    const { inputAsArray, total } = this.getCalculatedInput();
 
-    // Save reference of last used arithmatic
-    this.prevInputEl.innerHTML = '';
-    if (input !== total) {
-      prevInputEl.forEach(item => {
-          let el;
-          let children = item;
-
-
-
-          if (calcUtil.isOperator(children)) {
-            // special format
-            const filter = INPUTS.filter(z => z.value === children);
-            if (filter.length && filter[0].label) {
-              console.log('filter', filter, children);
-              children = filter[0].label.toLowerCase();
-            }
-
-            el = Spawn({
-              tag: 'span',
-              children,
-              style: {
-                color: 'red'
-              }
-            })
-            //   children: children
-            // });
-          } else {
-            el = Spawn(children);
-            // return Spawn({
-              // children: children
-            // });
-          }
-
-          // return el;
-
-          this.prevInputEl.appendChild(el);
-      })
-    }
-    // const prevInput = input === total ? '' : input;
-    // this.prevInputEl.innerHTML = prevInput;
-
-
-
-    // this.prevInputEl.replaceChildren(prevInputEl);
-    // this.prevInputEl.innerHTML
-
-    // this.input = total;
-    // Update Display
-
-    // this.inputEl.innerHTML = total;
-    // debugger
-
-    this.updateInput(total);
-
+    // Update reference of last used arithmatic
+    this.updateInputDisplay(this.prevInputEl, inputAsArray);
+    // Update Input Result
+    this.updateInput(total, el => el.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(total), 3));
   }
 
   /**
@@ -967,7 +915,6 @@ class Calculator {
     console.log('getFormattedInput', this.input, value);
 
     let formattedValue = `${value}`;
-
     const lastInput = this.input.slice(-1);
     const lastInputIsOp = calcUtil.isOperator(lastInput);
 
@@ -975,7 +922,6 @@ class Calculator {
     const lastIsDefault = !calcUtil.isOperator(value) && this.input === DEFAULT_VALUE;
     // update if previous input and new value are both not operator
     const lastIsSameOp = calcUtil.isOperator(formattedValue) && (formattedValue === lastInput);
-
     const lastIsOp = calcUtil.isOperator(formattedValue) && lastInputIsOp;
 
     if (lastIsDefault) {
@@ -991,7 +937,9 @@ class Calculator {
 
   // value => str|num
   appendInputValue(value) {
-    this.updateInput(this.getFormattedInput(value));
+    const formattedVal = this.getFormattedInput(value);
+    const { inputAsArray } = this.getCalculatedInput(formattedVal);
+    this.updateInput(formattedVal, el => this.updateInputDisplay(el, inputAsArray));
   }
 
   removeLastInputValue() {
@@ -1001,15 +949,24 @@ class Calculator {
     this.updateInput(newVal);
   }
 
-  /**
-   * Update Input and Display Value
+  /**7
+   * Update Input and its Display Value
    * @param {string} value - to set input as
+   * ....
    */
-  updateInput(value) {
+  updateInput(value, renderer) {
     this.input = value;
-    // ONLY DO THIS AFTER A CALCULATION.....
+
     // Update Display
-    this.inputEl.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(value), 3);
+    if (renderer) {
+     renderer(this.inputEl, value);
+    } else {
+      this.inputEl.innerHTML = value;
+    }
+  }
+
+  updatePreviousInputDisplay() {
+
   }
 
   /**
@@ -1160,7 +1117,6 @@ class App {
 
 
     // JS logo color
-
     // Getting Started
     Spawn({
       parentEl: el,
