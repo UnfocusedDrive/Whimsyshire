@@ -1605,18 +1605,48 @@ MjAyMS0wNy0yNFQyMDozMTowOSswMDowMCIMYcQAAAAASUVORK5CYII=" />
 };
 
 
-
-
+const _ = {
+  isDOM: value => value instanceof Element,
+  isObject: value => typeof value === 'object',
+  isStr: value => typeof value === 'string',
+  camel2Kebab: string => string.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join('')
+};
 
 const Spawn = (props = {}) => {
-  const { children, mountEl, style = {}, tag = 'div' } = props;
-  const el = document.createElement(tag);
-  el.setAttribute('style', Object.keys(style).map(key => `${key}: ${style[key]};`).join(' '));
-
-  if (children) {
-    el.innerHTML = children;
+  if (_.isStr(props)) {
+    return document.createTextNode(props);
   }
 
+  const { children, mountEl, style = {}, tag = 'div' } = props;
+  const el = document.createElement(tag);
+  el.setAttribute('style', Object.keys(style).map(key => `${_.camel2Kebab(key)}: ${style[key]};`).join(' '));
+
+  function appendChild(child) {
+    // console.log('appendChild', child);
+
+    if (_.isDOM(child)) {
+      el.appendChild(child);
+    } else if (_.isObject(child)) {
+      if (child.innerHTML) {
+        el.innerHTML = child.innerHTML;
+      }
+    } else if (_.isStr(child)) {
+      el.appendChild(Spawn(child));
+    } else {
+      // el.innerHTML = child;
+    }
+  };
+
+  // Append Children
+  if (children) {
+    if (Array.isArray(children)) {
+      children.forEach(child => appendChild(child));
+    } else {
+      appendChild(children);
+    }
+  }
+
+  // Mount to parent
   if (mountEl) {
     mountEl.append(el);
   }
@@ -1626,20 +1656,35 @@ const Spawn = (props = {}) => {
 
 
 class Character {
-  constructor(props) {
-    const { debug = false, mountEl, position = 100 } = props;
+  constructor(props = {}) {
+    const {
+      debug = false,
+      direction = 'right',
+      keyBindings = {
+        moveRight: 'ArrowRight',
+        moveLeft: 'ArrowLeft',
+        punch: ' '
+      },
+      mountEl,
+      name = 'Default Player',
+      position = 100
+    } = props;
 
+    this.props = props;
     this.state = {
+      direction,
+      keyBindings,
       isMoving: false,
       sprite: SUB_ZERO_SPRITE.stance,
       position,
-      move: null
+      move: null,
+      name
     };
 
     let debugStyle = {};
     if (debug) {
       debugStyle = {
-        background: 'black',
+        background: 'rgba(0,0,0, 0.3)',
         border: '1px solid red'
       };
     }
@@ -1656,7 +1701,10 @@ class Character {
     });
 
     this.animate();
+    this.updateDirection(this.state.direction);
     this.attachEvents();
+
+    console.log('constructor', this.el.getBoundingClientRect());
 
     return this;
   }
@@ -1688,35 +1736,18 @@ class Character {
   }
 
   updateElFrame(frame) {
-
-
-
     // console.log('updateElFrame', frame);
-
-    // if (!frame) {
-    //   debugger
-    // }
-
     this.el.innerHTML = frame;
   }
 
   animate = (count = 0) => {
-    // return;
     let position = count % this.state.sprite.length;
     // console.log('animateMe', count, position, this.state.sprite[position]);
-
-    // if (position > this.state.sprite.length-1) {
-    //   debugger
-    // }
+``
     // replace sprite frame every n seconds
     setTimeout(() => {
-      // this.el.innerHTML = this.state.sprite[position];
-
-
-
       // if frame set is swapped during timeout then reset to 0
       if (!this.state.sprite[position]) {
-        // debugger??
         position = 0;
       }
 
@@ -1725,27 +1756,50 @@ class Character {
     }, 100);
   }
 
+  updateDirection(direction) {
+
+    let transform = '';
+    if (direction === 'right') {
+      transform = '';
+    } else {
+      transform = 'scaleX(-1)';
+    }
+
+    this.state.move = direction;
+    this.el.style.transform = transform;
+  }
+
+
+
+
+
   handleKeyDown = (e) => {
     const keyPress = e.key;
+
+    const { moveLeft, moveRight, punch } = this.state.keyBindings;
+
+
+    console.log('handleKeyDown', this.el.getBoundingClientRect());
+
 
     let action;
     let direction;
     let transform;
     switch (keyPress) {
       // Move Right
-      case 'ArrowRight':
+      case moveRight:
         direction = 'right';
         transform = '';
         action = 'move';
         break;
       // Move Left
-      case 'ArrowLeft':
+      case moveLeft:
         direction = 'left';
         transform = 'scaleX(-1)';
         action = 'move';
         break;
       // Punch
-      case ' ':
+      case punch:
         direction = '';
         transform = '';
         action = 'punch';
@@ -1759,8 +1813,9 @@ class Character {
 
 
     if (action === 'move') {
-      this.state.move = direction;
-      this.el.style.transform = transform;
+      // this.state.move = direction;
+      // this.el.style.transform = transform;
+      this.updateDirection(direction);
 
       if (!this.state.isMoving) {
         this.state.isMoving = true;
@@ -1798,16 +1853,12 @@ class Character {
         this.state.position = this.state.position - inc;
       }
 
-      // console.log('move', e, this.state.position);
+      if (this.props.onChange) {
+        this.props.onChange('position', this.state.position);
+      }
       this.el.style.left = this.state.position;
-
-
       setTimeout(this.move, 10);
     }
-
-
-
-
   }
 };
 
@@ -1817,72 +1868,88 @@ class App {
   constructor(props) {
     const { debug = false, mountEl }  = props;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    const container = document.createElement('div');
-    container.setAttribute('style',
-      `background: gray;
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;`
-    );
-
-    const track = document.createElement('div');
-    track.innerHTML = ARENA_SPRITE.floor;
-    track.setAttribute('style', 'background: gray; position: relative;');
-
-    container.appendChild(track);
-    // document.body.append(container);
-    props.mountEl.append(container);
-
-    const character = new Character({
-      debug,
-      mountEl: track
+    const container = Spawn({
+      mountEl,
+      style: {
+        background: 'gray',
+        position: 'absolute',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%'
+      }
     });
 
-    const character2 = new Character({
-      mountEl: track,
-      debug,
-      position: 500
+    const track = Spawn({
+      mountEl: container,
+      children: {
+        innerHTML: ARENA_SPRITE.floor
+      },
+      style: {
+        background: 'gray',
+        position: 'relative'
+      }
     });
 
+    const characters = [
+      new Character({
+        debug,
+        onChange: (key, value) => console.log('key', key, value),
+        mountEl: track,
+        name: 'Player 1'
+      }),
+      new Character({
+        mountEl: track,
+        name: 'Player 2',
+        debug,
+        direction: 'left',
+        keyBindings: {},
+        position: 400
+      })
+    ];
 
     // Debug Mode
     // 1) Will show boxes, over characters
     // Each bug will show on the side, the height and width in px
     if (debug) {
       Spawn({
-        tag: 'button',
-        children: 'Toggle Debug Mode',
         mountEl,
+        children: [
+          Spawn({
+            tag: 'button',
+            children: 'Toggle Debug Mode',
+            // mountEl,
+            style: {
+              // position: 'absolute',
+              // top: 20,
+              // left: 20,
+              // width: 20,
+              // height: 20,
+              // background: 'blue'
+            }
+          }),
+          ...characters.map(character => Spawn({
+            children: `${character.state.name} X Position: XXXX`
+          }))
+          // 'Player 1 X Position: XXXX'
+
+
+        ],
         style: {
           position: 'absolute',
           top: 20,
           left: 20,
-          // width: 20,
-          // height: 20,
-          // background: 'blue'
+          background: 'blue'
         }
-      })
+      });
+
     }
 
 
 
     console.log('Prepare for Kombat!');
+    console.log('constructor', ...characters);
   }
 }
 

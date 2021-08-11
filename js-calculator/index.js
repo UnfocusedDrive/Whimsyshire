@@ -31,8 +31,6 @@
  *  Comments/questions/requests? Feel free to reach out to me!
  *
  *
-
-
  * NEXT:
  * STYLE:
  *   INPUT -- Operational colors should be white
