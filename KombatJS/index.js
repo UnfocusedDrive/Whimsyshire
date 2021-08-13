@@ -1843,20 +1843,28 @@ class Character {
 
   }
 
+  setPosition = (position) => {
+    this.state.position = position;
+    this.el.style.left = position;
+  }
+
   move = (e) => {
     const inc = 1;
+    let position = this.state.position;
 
     if (this.state.isMoving && this.state.move) {
       if (this.state.move === 'right') {
-        this.state.position = this.state.position + inc;
+        position += inc;
       } else if (this.state.move === 'left') {
-        this.state.position = this.state.position - inc;
+        position -= inc;
       }
 
       if (this.props.onChange) {
-        this.props.onChange('position', this.state.position);
+        this.props.onChange('position', position, this.setPosition);
+      } else {
+        this.setPosition(position)
       }
-      this.el.style.left = this.state.position;
+      // this.el.style.left = this.state.position;
       setTimeout(this.move, 10);
     }
   }
@@ -1876,26 +1884,33 @@ class App {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '100%',
-        height: '100%'
+        overflow: 'hidden',
+        // width: '100%',
+        // height: '100%'
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0
       }
     });
 
     const track = Spawn({
+      className: 'track',
       mountEl: container,
       children: {
         innerHTML: ARENA_SPRITE.floor
       },
       style: {
         background: 'gray',
-        position: 'relative'
+        position: 'absolute',
+        left: 0
       }
     });
 
     const characters = [
       new Character({
         debug,
-        onChange: (key, value) => console.log('key', key, value),
+        onChange: (key, value, cb) => this.handlePositionChange(0, key, value, cb),
         mountEl: track,
         name: 'Player 1'
       }),
@@ -1903,11 +1918,16 @@ class App {
         mountEl: track,
         name: 'Player 2',
         debug,
+        // onChange: (key, value) => this.handlePositionChange(1, key, value),
         direction: 'left',
         keyBindings: {},
         position: 400
       })
     ];
+
+    this.state = {
+      characters
+    }
 
     // Debug Mode
     // 1) Will show boxes, over characters
@@ -1940,7 +1960,7 @@ class App {
           position: 'absolute',
           top: 20,
           left: 20,
-          background: 'blue'
+          background: 'white'
         }
       });
 
@@ -1949,7 +1969,21 @@ class App {
 
 
     console.log('Prepare for Kombat!');
-    console.log('constructor', ...characters);
+    console.log('constructor', this);
+  }
+
+  handlePositionChange = (player, key, value, cb) => {
+    const x = value + this.state.characters[player].el.getBoundingClientRect().width;
+    const wall = this.state.characters[1].state.position;
+    console.log('handlePositionChange', x, wall, player, key, value, cb);
+
+    if (x >= wall) {
+      console.log('STOPPP');
+    } else {
+      cb(value);
+    }
+
+
   }
 }
 
