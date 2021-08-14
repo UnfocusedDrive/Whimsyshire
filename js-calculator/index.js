@@ -33,7 +33,7 @@
  *
  * NEXT:
  * STYLE:
- *   INPUT -- Operational colors should be white
+ * INPUT -- Operational colors should be white
  * on change theme, spin and shrink, then grow to normal size with new values.. (use the gear spin animation)
  * boost operator color diffs by 2x for hover, pressed
  * [done] don't show commas when adding input... and dont do for decimals..
@@ -78,6 +78,14 @@
 // add instructions on top of calc demo
 // mybe some cool animatiosn
 // more border radius on buttons
+
+// KEEP this but comment it out.... for release
+const tests = [
+  // DEMO
+  '45+(1250*100)/10',
+  '0+(12+(2+(3+(1+7',
+  '435345.11232152151'
+];
 
 
 const DEFAULT_VALUE = '0';
@@ -328,12 +336,15 @@ const calcUtil = {
     return cb(arr);
   },
   getFormattedDisplayValue(str) {
-    const chunks = _.splitToChunksRight(str, 3);
-    const f = chunks.join(',');
+    const [int, dec] = str.split('.');
+    let result = _.splitToChunksRight(int, 3).join(',');
 
+    if (dec) {
+      result += `.${dec}`
+    }
 
-    console.log('getFormattedDisplayValue', f, chunks);
-    return f;
+    console.log('getFormattedDisplayValue', result, str);
+    return result;
 
 
     // console.log('chunks', chunks);
@@ -1235,8 +1246,8 @@ const run = new App({
   calculatorProps: {
     // Start Input Value for Calculator
     // testing
-    // input: '0+(12+(2+(3+(1+7',
+    input: tests[2]
     // USE this for final demo
-    input: '45+(1250*100)/10'
+    // input: '45+(1250*100)/10'
   }
 });
