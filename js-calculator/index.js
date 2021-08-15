@@ -32,7 +32,11 @@
  *
  *
  * TODO:
- * [done] Do not allow more than 1 decimal per number group
+ *  GROUPING
+ *    - PRESERVE GROUPING of () when calculating result.....
+ *    - CONTROL DEPTH LEVEL of IN AND OUT DIFFRENT GROYP LEVELS .. .NEED TESTS....
+ *  DECIMAL HANDLING
+ *    [done] Do not allow more than 1 decimal per number group
  * STYLE:
  * INPUT -- Operational colors should be white
  * on change theme, spin and shrink, then grow to normal size with new values.. (use the gear spin animation)
@@ -84,7 +88,10 @@
 const tests = [
   // DEMO
   '45+(1250*100)/10',
-  '0+(12+(2+(3+(1+7',
+  // Depth 1
+  '0+(12+(2+(3+(1+7', // 0+(12+(2+(3+(1+7))))
+  // Depth 2
+  '( 1 + (5 + 2)) + ( 1 - ( 5 - 1) )',
   '435345.11232152151',
   '5/4-3+1',
   '45.999....+......'
@@ -326,17 +333,18 @@ const calcUtil = {
    * @param {function} formatter - callback for each chain
    * @returns {*} value from formatter()
    */
-   formatInputs(arr, formatter = value => value) {
+   formatInputs(arr, formatter = value => value, level = 0) {
     const lastItem = arr[arr.length -1];
     const more = Array.isArray(lastItem);
     if (more) {
       return formatter(
         arr.slice(0,-1),
-        this.formatInputs(lastItem, formatter)
+        this.formatInputs(lastItem, formatter, level + 1),
+        level + 1
       );
     }
 
-    return formatter(arr);
+    return formatter(arr, [], level);
   },
   getFormattedDisplayValue(str) {
     const [int, dec] = str.split('.');
@@ -741,11 +749,47 @@ class Calculator {
 
   // @returns {string}
   getCalculatedInput(str = this.input) {
+
+    // need a depth count to get how many ending parens.....!!! TODO NEXT
     const nestedInputs = calcUtil.getNestedInputs(str);
 
     // split into separate fn....
     // !! NESTING NEEDS TO BE PRESERVED!!! for render display
     const inputGroups = this.getFormattedInputGroups(nestedInputs).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
+    let lastLevel = -1;
+    const inputGroups2 = calcUtil.formatInputs(nestedInputs, (arr, prevArr = [], level) => {
+
+
+      // try to manage position.....
+      if (lastLevel < 0) {
+        lastLevel = level;
+      } else {
+        lastLevel = 0;
+      }
+
+
+      // Auto close parenthesisisisisiis
+      let open = '(';
+      if (level === 1) {
+        open = '';
+      }
+      let close = '';
+      for (let i = 0; i < lastLevel; i++) {
+        close += ')';
+      }
+
+
+
+
+      const res = [
+        open,
+        ...calcUtil.getInputGroups(arr),
+        close,
+        ...prevArr
+      ];
+      console.log('res', res, arr, prevArr, level, close);
+      return res;
+    });
 
     // new total is here
     const total = calcUtil.formatInputs(nestedInputs,  (arr, lastCompute = 0) => {
@@ -770,6 +814,7 @@ class Calculator {
       input: str,
       nestedInputs,
       inputGroups,
+      inputGroups2,
       inputAsArray: inputGroups,
       total: _.toStr(total)
     };
@@ -920,11 +965,12 @@ class Calculator {
   }
 
   calculateInput() {
-    const { inputAsArray, total } = this.getCalculatedInput();
+    const { inputAsArray, inputGroups2, total } = this.getCalculatedInput();
 
     // Update reference of last used arithmatic
-    this.renderInput(this.prevInputEl, inputAsArray);
+    this.renderInput(this.prevInputEl, inputGroups2);
     // Update Input Result
+    // change to renderInput ?
     this.updateInput(total, el => el.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(total), 3));
   }
 
