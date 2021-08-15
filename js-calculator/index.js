@@ -31,7 +31,8 @@
  *  Comments/questions/requests? Feel free to reach out to me!
  *
  *
- * NEXT:
+ * TODO:
+ * [done] Do not allow more than 1 decimal per number group
  * STYLE:
  * INPUT -- Operational colors should be white
  * on change theme, spin and shrink, then grow to normal size with new values.. (use the gear spin animation)
@@ -84,7 +85,9 @@ const tests = [
   // DEMO
   '45+(1250*100)/10',
   '0+(12+(2+(3+(1+7',
-  '435345.11232152151'
+  '435345.11232152151',
+  '5/4-3+1',
+  '45.999....+......'
 ];
 
 
@@ -318,22 +321,22 @@ const calcUtil = {
   },
 
   /**
-   * Get Compute Chain
+   * Get Formatted Input Chain
    * @param {*} arr - Array to compute chain
-   * @param {*} cb - callback for each chain
-   * @returns {*} value from cb()
+   * @param {function} formatter - callback for each chain
+   * @returns {*} value from formatter()
    */
-   getComputeChainFor(arr, cb) {
+   formatInputs(arr, formatter = value => value) {
     const lastItem = arr[arr.length -1];
     const more = Array.isArray(lastItem);
     if (more) {
-      return cb(
+      return formatter(
         arr.slice(0,-1),
-        this.getComputeChainFor(lastItem, cb)
+        this.formatInputs(lastItem, formatter)
       );
     }
 
-    return cb(arr);
+    return formatter(arr);
   },
   getFormattedDisplayValue(str) {
     const [int, dec] = str.split('.');
@@ -353,25 +356,26 @@ const calcUtil = {
   // input => str
   // [ops] => arr
   // @returns str
-  getMergedOps: (inp, ops = []) => {
-    let mergedInput = inp;
-    // Merged in unfiltered input
-    if (ops.length) {
-      ops.forEach(op => mergedInput += op);
-    }
-    return mergedInput;
-  },
+  // RM THIS
+  // getMergedOps: (inp, ops = []) => {
+  //   let mergedInput = inp;
+  //   // Merged in unfiltered input
+  //   if (ops.length) {
+  //     ops.forEach(op => mergedInput += op);
+  //   }
+  //   return mergedInput;
+  // },
   // values => arr
   // returns => arr|null
-  getMergedValues(values) {
+  getInputGroups(values) {
     if (values) {
       let merged = [''];
-      // console.log('getMergedValues', values);
+      // console.log('getInputGroups', values);
       for (let i = 0; i < values.length; i++) {
-        // Push if current or previous was operator
+        // Push to new group current or previous was operator
         if (this.isOperator(merged[merged.length-1]) || this.isOperator(values[i])) {
           merged.push(values[i]);
-        // Add character to last item
+        // Add value to previous group
         } else {
           merged[merged.length-1] += values[i];
         }
@@ -404,8 +408,10 @@ const calcUtil = {
     return chain;
   },
   // input => str
-  // @return => arr
-  getInputChain: function(input) {
+  // @return => arr of arras
+  // e..g 0 + (1 + ( 5 - 4)) => ['1', [1,+ [5,-,4,] ]]
+  // get nested input array groups
+  getNestedInputs: function(input) {
     // How deep in the chain we are
     let chainLevel = 0;
     const result = input.split('').reduce((acc, currentValue, i, arr) => {
@@ -435,7 +441,7 @@ const calcUtil = {
       // console.log('groupInput', i, arr[i], acc)
 
 
-      // console.log('getInputChain', chainDepth, formattedInput, currentValue);
+      // console.log('getNestedInputs', chainDepth, formattedInput, currentValue);
       // if (currentValue === '9') {
         // debugger
       // }
@@ -458,12 +464,12 @@ const calcUtil = {
   },
   getTotal(arr) {
     // const f = this.computeInputChain(arr);
-    // const a = this.getMergedValues(arr);
+    // const a = this.getInputGroups(arr);
 
     let total = 0;
     let operator = OPERATOR.ADD;
 //
-    const mergedValues = this.getMergedValues(arr);
+    const mergedValues = this.getInputGroups(arr);
     console.log('mergedValues', mergedValues);
 
     mergedValues.forEach(node => {
@@ -688,7 +694,10 @@ class Calculator {
     this.renderBtns();
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
-    this.calculateInput();
+
+    // Re-enable when  DEMO IS ready....
+    // this.calculateInput();
+    this.updateInput(this.input);
 
     console.log('constructor', this);
     return this;
@@ -732,17 +741,15 @@ class Calculator {
 
   // @returns {string}
   getCalculatedInput(str = this.input) {
-    const mergedInput = calcUtil.getMergedOps(str, []);
-    const chain = calcUtil.getInputChain(mergedInput);
+    const nestedInputs = calcUtil.getNestedInputs(str);
 
     // split into separate fn....
-    const inputAsArray = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = []) => {
-      return [...calcUtil.getMergedValues(arr), ...lastCompute];
-    }).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
+    // !! NESTING NEEDS TO BE PRESERVED!!! for render display
+    const inputGroups = this.getFormattedInputGroups(nestedInputs).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
 
     // new total is here
-    const total = calcUtil.getComputeChainFor(chain,  (arr, lastCompute = 0) => {
-      const t = calcUtil.getMergedValues(arr);
+    const total = calcUtil.formatInputs(nestedInputs,  (arr, lastCompute = 0) => {
+      const t = calcUtil.getInputGroups(arr);
       const j = t.map(res => {
 
         if (calcUtil.isOperator(res)) {
@@ -760,12 +767,18 @@ class Calculator {
     });
 
     const res = {
-      input: mergedInput,
-      inputAsArray: inputAsArray,
+      input: str,
+      nestedInputs,
+      inputGroups,
+      inputAsArray: inputGroups,
       total: _.toStr(total)
     };
 
-    console.log('getCalculatedInput', res);
+    console.log('getCalculatedInput', {
+      // nestedInputs,
+      // inputAsArray,
+      ...res
+    });
 
     return res;
   }
@@ -778,7 +791,7 @@ class Calculator {
     return INPUTS;
   }
 
-  updateInputDisplay(displayEl, inputArray) {
+  renderInput(displayEl, inputArray) {
     // Save reference of last used arithmatic
     displayEl.innerHTML = '';
     // if (input !== total) {
@@ -910,45 +923,88 @@ class Calculator {
     const { inputAsArray, total } = this.getCalculatedInput();
 
     // Update reference of last used arithmatic
-    this.updateInputDisplay(this.prevInputEl, inputAsArray);
+    this.renderInput(this.prevInputEl, inputAsArray);
     // Update Input Result
     this.updateInput(total, el => el.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(total), 3));
   }
 
+
+  getFormattedInputGroups(nestedInputs) {
+    return calcUtil.formatInputs(nestedInputs,  (arr, lastCompute = []) => {
+      return [...calcUtil.getInputGroups(arr), ...lastCompute];
+    });
+  }
+
   /**
-   * Formats value with current input
+   * Formats current input with value
    * @param {string|number} value
    * @returns {string} of formatted input
    */
   getFormattedInput(value) {
-    console.log('getFormattedInput', this.input, value);
-
     let formattedValue = `${value}`;
     const lastInput = this.input.slice(-1);
-    const lastInputIsOp = calcUtil.isOperator(lastInput);
+    const nestedInputs = calcUtil.getNestedInputs(this.input);
+    // !! NESTING NEEDS TO BE PRESERVED
+    const inputGroups = this.getFormattedInputGroups(nestedInputs);
+    const lastInputGroup = inputGroups[inputGroups.length-1];
 
-    // If fresh instance, replace the default DEFAULT_VALUE and setting a new num...
-    const lastIsDefault = !calcUtil.isOperator(value) && this.input === DEFAULT_VALUE;
-    // update if previous input and new value are both not operator
-    const lastIsSameOp = calcUtil.isOperator(formattedValue) && (formattedValue === lastInput);
-    const lastIsOp = calcUtil.isOperator(formattedValue) && lastInputIsOp;
+    console.log('getFormattedInput', {
+      value,
+      formattedValue,
+      lastInput,
+      lastInputGroup,
+      nestedInputs,
+      inputGroups
+    });
 
-    if (lastIsDefault) {
-      return formattedValue;
-    } else if (lastIsSameOp) {
+    // Do not allow more than one decimal per input group
+    if (value === '.' && lastInputGroup.indexOf('.') > -1) {
       return this.input;
-    } else if (lastIsOp) {
-      return this.input.slice(0, this.input.length-1) + formattedValue;
     }
 
-    return this.input + formattedValue;
+
+
+
+
+
+    // then check last group contains decimal.... then return input without value
+
+
+
+    const isLastInputOp = calcUtil.isOperator(lastInput);
+
+    // If fresh instance, replace the default DEFAULT_VALUE and setting a new num...
+    const isLastInputDefault = !calcUtil.isOperator(value) && this.input === DEFAULT_VALUE;
+    // Handle Operator
+    // update if previous input and new value are both not operator
+    // const lastIsSameOp = calcUtil.isOperator(formattedValue) && (formattedValue === lastInput);
+    const lastIsOp = calcUtil.isOperator(formattedValue) && isLastInputOp;
+
+
+    let result;
+    if (isLastInputDefault) {
+      result = formattedValue;
+    // } else if (lastIsSameOp) {
+      // result = this.input;
+    } else if (lastIsOp) {
+      result = this.input.slice(0, this.input.length-1) + formattedValue;
+    } else {
+
+
+      // filter decimals here......
+      result = this.input + formattedValue;
+    }
+
+    // console.log('getFormattedInput', result, this.getCalculatedInput(result), this.input, value);
+//
+    return result;
   }
 
   // value => str|num
   appendInputValue(value) {
-    const formattedVal = this.getFormattedInput(value);
-    const { inputAsArray } = this.getCalculatedInput(formattedVal);
-    this.updateInput(formattedVal, el => this.updateInputDisplay(el, inputAsArray));
+    const input = this.getFormattedInput(value);
+    const { inputAsArray } = this.getCalculatedInput(input);
+    this.updateInput(input, el => this.renderInput(el, inputAsArray));
   }
 
   removeLastInputValue() {
@@ -958,19 +1014,20 @@ class Calculator {
     this.updateInput(newVal);
   }
 
-  /**7
-   * Update Input and its Display Value
-   * @param {string} value - to set input as
+  /**
+   * Update Input and render new display
+   * @param {string} input - to set input as
+   * @param {function} renderer - how to render input on the display
    * ....
    */
-  updateInput(value, renderer) {
-    this.input = value;
+  updateInput(input, renderer) {
+    this.input = input;
 
     // Update Display
     if (renderer) {
-     renderer(this.inputEl, value);
+     renderer(this.inputEl, input);
     } else {
-      this.inputEl.innerHTML = value;
+      this.inputEl.innerHTML = input;
     }
   }
 
@@ -1246,7 +1303,7 @@ const run = new App({
   calculatorProps: {
     // Start Input Value for Calculator
     // testing
-    input: tests[2]
+    input: tests[1]
     // USE this for final demo
     // input: '45+(1250*100)/10'
   }

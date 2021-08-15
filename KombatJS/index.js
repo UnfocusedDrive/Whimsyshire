@@ -1617,7 +1617,7 @@ const Spawn = (props = {}) => {
     return document.createTextNode(props);
   }
 
-  const { children, mountEl, style = {}, tag = 'div' } = props;
+  const { children, events = {}, mountEl, style = {}, tag = 'div' } = props;
   const el = document.createElement(tag);
   el.setAttribute('style', Object.keys(style).map(key => `${_.camel2Kebab(key)}: ${style[key]};`).join(' '));
 
@@ -1646,6 +1646,11 @@ const Spawn = (props = {}) => {
     }
   }
 
+  // Attach Event Listeners
+  Object.keys(events).forEach(key => {
+    el.addEventListener(key, events[key]);
+  });
+
   // Mount to parent
   if (mountEl) {
     mountEl.append(el);
@@ -1670,17 +1675,52 @@ class Character {
       position = 100
     } = props;
 
+    // dont need?
     this.props = props;
     this.state = {
+      debug,
       direction,
       keyBindings,
       isMoving: false,
       sprite: SUB_ZERO_SPRITE.stance,
       position,
+      mountEl,
       move: null,
       name
     };
 
+    this.render('mount');
+    // this.animate();
+    this.updateDirection(this.state.direction);
+    this.attachEvents();
+
+    // console.log('constructor', this.el.getBoundingClientRect());
+    return this;
+  }
+
+  // set state(state) {
+  //   this.state = {
+  //     ...this.state,
+  //     ...state
+  //   };
+  //   console.log('set state', state, this);
+  // }
+
+
+  setState(state) {
+    this.state = {
+      ...this.state,
+      ...state
+    };
+    this.render();
+    // this.el.replaceWith(Spawn());
+
+    console.log('set state', state, this.el, this);
+  }
+
+
+  render(lifecycle) {
+    const { debug, mountEl } = this.state;
     let debugStyle = {};
     if (debug) {
       debugStyle = {
@@ -1689,24 +1729,26 @@ class Character {
       };
     }
 
-    this.el = Spawn({
-      mountEl,
+    const props = {
       style: {
         position: 'absolute',
-        // opacity: 0.5,
         bottom: 20,
         left: this.state.position,
         ...debugStyle
       }
-    });
+    };
 
+    if (lifecycle === 'mount') {
+      this.el = Spawn({
+        ...props,
+        mountEl
+      });
+    } else {
+      this.el.replaceWith(Spawn(props));
+    }
+
+    // ifx this on update... lifecycle
     this.animate();
-    this.updateDirection(this.state.direction);
-    this.attachEvents();
-
-    console.log('constructor', this.el.getBoundingClientRect());
-
-    return this;
   }
 
   attachEvents() {
@@ -1926,7 +1968,9 @@ class App {
     ];
 
     this.state = {
-      characters
+      arena: track,
+      characters,
+      debug
     }
 
     // Debug Mode
@@ -1939,6 +1983,13 @@ class App {
           Spawn({
             tag: 'button',
             children: 'Toggle Debug Mode',
+            events: {
+              click: () => {
+                console.log('click');
+
+                this.state.characters[0].setState({debug: false});
+              }
+            },
             // mountEl,
             style: {
               // position: 'absolute',
@@ -1970,14 +2021,31 @@ class App {
 
     console.log('Prepare for Kombat!');
     console.log('constructor', this);
+
+
+    // this.state.characters[0].setState({debug: false});
   }
 
   handlePositionChange = (player, key, value, cb) => {
-    const x = value + this.state.characters[player].el.getBoundingClientRect().width;
-    const wall = this.state.characters[1].state.position;
-    console.log('handlePositionChange', x, wall, player, key, value, cb);
+    const player1Bounds = this.state.characters[0].el.getBoundingClientRect();
+    const player2Bounds = this.state.characters[1].el.getBoundingClientRect();
+    const arenaBounds = this.state.arena.getBoundingClientRect();
 
-    if (x >= wall) {
+
+    const bounds = this.state.characters[player].el.getBoundingClientRect();
+    const right = value + bounds.width;
+    const wall = this.state.characters[1].state.position;
+    console.log('handlePositionChange', {
+      player,
+      key,
+      value,
+      cb,
+      player1Bounds,
+      player2Bounds,
+      arenaBounds
+    });
+
+    if (right >= wall || value <= 0) {
       console.log('STOPPP');
     } else {
       cb(value);
