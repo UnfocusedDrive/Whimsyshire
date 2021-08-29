@@ -3,7 +3,7 @@
  *
  * Objectives/Constraints:
  *  - Easy Import and Customize into any App
- *  - Single JS file for entire setup
+ *  - Single JS file for entire setup (for CodePen.io demo use)
  *  - No External Libraries
  *  - No HTML tags or CSS selectors were harmed in the making of this exercise.
  *  - Theme Token Support
@@ -59,23 +59,8 @@
  * - Style the input to make it pretty....
  * - add shadow ')' like google calc
  * Add operatiosn for e, pie sin, and deg
-
-
-
-
-
-
-
-
-
-
-
-
  */
 
-
-
-// !! Keep entire file as single for Codepen
 
 // TODO
 // key listener
@@ -327,6 +312,80 @@ const calcUtil = {
     }
   },
 
+   computeInput(inputStr) {
+     // need a depth count to get how many ending parens.....!!! TODO NEXT
+    const nestedInputs = this.getNestedInputs(inputStr);
+    let lastLevel = -1;
+    const inputGroups = this.formatInputs(nestedInputs, (arr, prevArr = [], level) => {
+      // try to manage position.....
+      if (lastLevel < 0) {
+        lastLevel = level;
+      } else {
+        lastLevel = 0;
+      }
+
+
+      // Auto close parenthesisisisisiis
+      let open = '(';
+      if (level === 1) {
+        open = '';
+      }
+      let close = '';
+      for (let i = 0; i < lastLevel; i++) {
+        close += ')';
+      }
+
+
+
+
+      const res = [
+        open,
+        ...this.getInputGroups(arr),
+        close,
+        ...prevArr
+      ];
+      // console.log('res', res, arr, prevArr, level, close);
+      return res;
+    });
+    // new total is here
+    const total = _.trimLeadingZeroes(_.toStr(this.formatInputs(nestedInputs,  (arr, lastCompute = 0) => {
+      const t = this.getInputGroups(arr);
+      const j = t.map(res => {
+
+        if (this.isOperator(res)) {
+          return Spawn({
+            children: res
+          });
+        } else {
+          return Spawn({
+            children: res
+          });
+        }
+      });
+
+      return this.getTotal(t) + lastCompute;
+    })));
+
+
+
+    const result = {
+      total,
+      totalAsDisplay: this.getFormattedDisplayValue(_.toStr(total), 3),
+      history: inputGroups,
+      historyAsStr: inputGroups.join('')
+    };
+    console.log('computeInput', {
+      inputStr,
+      nestedInputs,
+      inputGroups,
+      total,
+      result
+    });
+
+    return result;
+   },
+
+
   /**
    * Get Formatted Input Chain
    * @param {*} arr - Array to compute chain
@@ -478,7 +537,7 @@ const calcUtil = {
     let operator = OPERATOR.ADD;
 //
     const mergedValues = this.getInputGroups(arr);
-    console.log('mergedValues', mergedValues);
+    // console.log('mergedValues', mergedValues);
 
     mergedValues.forEach(node => {
         const value = Number.parseFloat(node, 10);
@@ -491,7 +550,7 @@ const calcUtil = {
       }
     });
 
-    console.log('getTotal', total, arr);
+    // console.log('getTotal', total, arr);
 
 
     return total;
@@ -748,85 +807,85 @@ class Calculator {
   }
 
   // @returns {string}
-  getCalculatedInput(str = this.input) {
+  // getCalculatedInput(str = this.input) {
 
-    // need a depth count to get how many ending parens.....!!! TODO NEXT
-    const nestedInputs = calcUtil.getNestedInputs(str);
+  //   // need a depth count to get how many ending parens.....!!! TODO NEXT
+  //   const nestedInputs = calcUtil.getNestedInputs(str);
 
-    // split into separate fn....
-    // !! NESTING NEEDS TO BE PRESERVED!!! for render display
-    const inputGroups = this.getFormattedInputGroups(nestedInputs).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
-    let lastLevel = -1;
-    const inputGroups2 = calcUtil.formatInputs(nestedInputs, (arr, prevArr = [], level) => {
-
-
-      // try to manage position.....
-      if (lastLevel < 0) {
-        lastLevel = level;
-      } else {
-        lastLevel = 0;
-      }
+  //   // split into separate fn....
+  //   // !! NESTING NEEDS TO BE PRESERVED!!! for render display
+  //   const inputGroups = this.getFormattedInputGroups(nestedInputs).reduce((acc, item, i) => [...acc, item, ' '], []).slice(0, -1);
+  //   let lastLevel = -1;
+  //   const inputGroups2 = calcUtil.formatInputs(nestedInputs, (arr, prevArr = [], level) => {
 
 
-      // Auto close parenthesisisisisiis
-      let open = '(';
-      if (level === 1) {
-        open = '';
-      }
-      let close = '';
-      for (let i = 0; i < lastLevel; i++) {
-        close += ')';
-      }
+  //     // try to manage position.....
+  //     if (lastLevel < 0) {
+  //       lastLevel = level;
+  //     } else {
+  //       lastLevel = 0;
+  //     }
+
+
+  //     // Auto close parenthesisisisisiis
+  //     let open = '(';
+  //     if (level === 1) {
+  //       open = '';
+  //     }
+  //     let close = '';
+  //     for (let i = 0; i < lastLevel; i++) {
+  //       close += ')';
+  //     }
 
 
 
 
-      const res = [
-        open,
-        ...calcUtil.getInputGroups(arr),
-        close,
-        ...prevArr
-      ];
-      console.log('res', res, arr, prevArr, level, close);
-      return res;
-    });
+  //     const res = [
+  //       open,
+  //       ...calcUtil.getInputGroups(arr),
+  //       close,
+  //       ...prevArr
+  //     ];
+  //     console.log('res', res, arr, prevArr, level, close);
+  //     return res;
+  //   });
 
-    // new total is here
-    const total = calcUtil.formatInputs(nestedInputs,  (arr, lastCompute = 0) => {
-      const t = calcUtil.getInputGroups(arr);
-      const j = t.map(res => {
+  //   // new total is here
+  //   const total = calcUtil.formatInputs(nestedInputs,  (arr, lastCompute = 0) => {
+  //     const t = calcUtil.getInputGroups(arr);
+  //     const j = t.map(res => {
 
-        if (calcUtil.isOperator(res)) {
-          return Spawn({
-            children: res
-          });
-        } else {
-          return Spawn({
-            children: res
-          });
-        }
-      });
+  //       if (calcUtil.isOperator(res)) {
+  //         return Spawn({
+  //           children: res
+  //         });
+  //       } else {
+  //         return Spawn({
+  //           children: res
+  //         });
+  //       }
+  //     });
 
-      return calcUtil.getTotal(t) + lastCompute;
-    });
+  //     return calcUtil.getTotal(t) + lastCompute;
+  //   });
 
-    const res = {
-      input: str,
-      nestedInputs,
-      inputGroups,
-      inputGroups2,
-      inputAsArray: inputGroups,
-      total: _.toStr(total)
-    };
+  //   const res = {
+  //     input: str,
+  //     nestedInputs,
+  //     inputGroups,
+  //     inputGroups2,
+  //     inputAsArray: inputGroups,
+  //     total: _.toStr(total)
+  //   };
 
-    console.log('getCalculatedInput', {
-      // nestedInputs,
-      // inputAsArray,
-      ...res
-    });
+  //   console.log('getCalculatedInput', {
+  //     // nestedInputs,
+  //     // inputAsArray,
+  //     ...res
+  //   });
 
-    return res;
-  }
+  //   return res;
+  // }
 
   /**
    * Get button
@@ -965,10 +1024,11 @@ class Calculator {
   }
 
   calculateInput() {
-    const { inputAsArray, inputGroups2, total } = this.getCalculatedInput();
+    // const { inputAsArray, inputGroups2, total } = this.getCalculatedInput();
+    const { history, total } = calcUtil.computeInput(this.input);
 
     // Update reference of last used arithmatic
-    this.renderInput(this.prevInputEl, inputGroups2);
+    this.renderInput(this.prevInputEl, history);
     // Update Input Result
     // change to renderInput ?
     this.updateInput(total, el => el.innerHTML = calcUtil.getFormattedDisplayValue(_.toStr(total), 3));
@@ -1344,6 +1404,45 @@ class App {
     return this;
   }
 }
+
+
+/**
+ * Flappy Runtime Testing
+ */
+const runTests = () => {
+  const tests = [
+    [
+      'name',
+      '0+(12+(2+(3+(1+7',
+      {
+        history: '0+(12+(2+(3+(1+7))))',
+        display: '12,238'
+      }
+    ]
+  ];
+
+  const validate = (expected, received, options) => {
+    const isValid = expected === received;
+
+    if (!isValid) {
+      console.error({expected, received});
+      throw new Error(`TEST FAILED`);
+    }
+    return isValid;
+  };
+
+  const isValid = tests.every(test => {
+    const [title, input, expected] = test;
+    const result = calcUtil.computeInput(input);
+
+    console.log('runTests', test, result);
+    const sameHistory = validate(expected.history, result.historyAsStr);
+    const samTotal = validate(expected.display, result.totalAsDisplay);
+    return sameHistory && samTotal;
+  });
+}
+
+runTests();
 
 const run = new App({
   calculatorProps: {
