@@ -1,3 +1,11 @@
+import App from './whimsyshire/index.js';
+
+
+const run = new App({
+  el: document.body
+});
+
+console.log('App', run, App);
 
 
 async function runMe() {
