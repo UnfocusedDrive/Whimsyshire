@@ -1,5 +1,5 @@
+// App Splash (Mountain)
 import App from './whimsyshire/index.js';
-
 
 const run = new App({
   el: document.body
