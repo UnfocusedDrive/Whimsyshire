@@ -1271,12 +1271,12 @@ class Calculator {
 // App
 class App {
   constructor(props) {
-    const { calculatorProps = {} } = props;
+    const { calculatorProps = {}, parentEl } = props;
 
     // App Element
     const el = Spawn({
       className: 'app',
-      parentEl: document.body,
+      parentEl: parentEl || document.body,
       style: {
         height: '100%',
         width: '100%',
@@ -1288,9 +1288,6 @@ class App {
     });
 
     const calcContainer = Spawn();
-
-
-
 
     // JS logo color
     // Getting Started
@@ -1404,6 +1401,11 @@ class App {
     document.body.style.backgroundColor = '#a4508b';
     document.body.style.backgroundImage = 'linear-gradient(326deg, #a4508b 0%, #5f0a87 74%)';
     document.body.style.fontFamily = `'Roboto', sans-serif`;
+
+    this.state = {
+      el
+    };
+
 
     return this;
   }

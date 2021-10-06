@@ -2,10 +2,10 @@
 import App from './whimsyshire/index.js';
 
 const run = new App({
-  el: document.body
+  parentEl: document.body
 });
 
-console.log('App', run, App);
+console.log('App', run);
 
 
 async function runMe() {

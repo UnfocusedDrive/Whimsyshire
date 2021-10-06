@@ -7,8 +7,22 @@ const apps = [
   {
     label: 'JS Calculator',
     description: ' sjlfs f jasdlf jkasf lkdj',
+    path: '../js-calculator/index.js',
     events: {
-      click: () => import('../js-calculator/index.js').then(data => console.log('data', data))
+      click: () => import('../js-calculator/index.js').then(({default: app}) => {
+        console.log('app', app);
+
+        const run = new app({
+          calculatorProps: {
+            // Start Input Value for Calculator
+            // testing
+            // input: tests[1]
+            // USE this for final demo
+            input: '45+(1250*100)/10'
+          }
+        });
+
+      })
     }
   },
   {
@@ -17,56 +31,55 @@ const apps = [
   }
 ];
 
+// const appCards = apps.map(({ label, description, events }, i) => {
+//   let style = {
+//     background: '#3d3455',
+//     textAlign: 'center',
+//     borderRadius: 4,
+//     padding: 10,
+//     color: 'white'
+//   };
 
-const appCards = apps.map(({ label, description, events }, i) => {
-  let style = {
-    background: '#3d3455',
-    textAlign: 'center',
-    borderRadius: 4,
-    padding: 10,
-    color: 'white'
-  };
+//   if (i) {
+//     style = {
+//       ...style,
+//       marginLeft: 20
+//     };
+//   }
 
-  if (i) {
-    style = {
-      ...style,
-      marginLeft: 20
-    };
-  }
-
-  return Spawn({
-    children: [
-      Spawn({
-        children: label
-      }),
-      Spawn({
-        children: description
-      }),
-      Spawn({
-        tag: 'button',
-        children: 'Open',
-        style: {
-          marginTop: 15,
-          background: '#00a7de',
-          color: 'white',
-          width: '100%',
-          border: 'none',
-          borderRadius: 4,
-          padding: 4
-        }
-      })
-    ],
-    events,
-    style
-  });
-  // return app.label;
-})
+//   return Spawn({
+//     children: [
+//       Spawn({
+//         children: label
+//       }),
+//       Spawn({
+//         children: description
+//       }),
+//       Spawn({
+//         tag: 'button',
+//         children: 'Open',
+//         style: {
+//           marginTop: 15,
+//           background: '#00a7de',
+//           color: 'white',
+//           width: '100%',
+//           border: 'none',
+//           borderRadius: 4,
+//           padding: 4
+//         }
+//       })
+//     ],
+//     events,
+//     style
+//   });
+//   // return app.label;
+// })
 
 export default class App {
   constructor(props) {
-    const { el } = props;
+    const { parentEl } = props;
 
-    const content = Spawn({
+    const el = Spawn({
       children: Spawn({
         children: [
           Spawn({
@@ -80,7 +93,7 @@ export default class App {
             ]
           }),
           Spawn({
-            children: appCards,
+            children: this.renderAppCards(),
             className: 'cards',
             style: {
               display: 'flex',
@@ -103,11 +116,102 @@ export default class App {
         height: '100%'
       }
     });
-    el.appendChild(content);
-    el.style.background = '#2c2541';
+    parentEl.appendChild(el);
+    parentEl.style.background = '#2c2541';
     // el.style.margin = '0 auto';
-    console.log('props', el, content, props);
+    // console.log('props', el, content, props);
 
-    return content;
+    this.state = {
+      el,
+      parentEl
+    };
+
+    return this;
+  }
+
+  handleLaunchApp = (path) => {
+
+    import(path).then(({default: app}) => {
+      // this.el = null;
+
+      // clear existing
+      this.state.parentEl.innerHTML = '';
+      const run = new app({
+        calculatorProps: {
+          parentEl: this.state.parentEl,
+          // Start Input Value for Calculator
+          // testing
+          // input: tests[1]
+          // USE this for final demo
+          input: '45+(1250*100)/10'
+        }
+      });
+
+      console.log('handleLaunchApp', path, run, app, this);
+
+      // ... seems to work....
+    });
+
+  }
+
+  renderAppCards() {
+    return apps.map(({ label, description, events, path }, i) => {
+      let style = {
+        background: '#3d3455',
+        textAlign: 'center',
+        borderRadius: 4,
+        padding: 10,
+        color: 'white'
+      };
+
+      if (i) {
+        style = {
+          ...style,
+          marginLeft: 20
+        };
+      }
+
+      return Spawn({
+        children: [
+          Spawn({
+            children: label
+          }),
+          Spawn({
+            children: description
+          }),
+          Spawn({
+            tag: 'button',
+            children: 'Open',
+            style: {
+              marginTop: 15,
+              background: '#00a7de',
+              color: 'white',
+              width: '100%',
+              border: 'none',
+              borderRadius: 4,
+              padding: 4
+            }
+          })
+        ],
+        events: {
+          click: () => this.handleLaunchApp(path)
+          // click: () => import(path).then(({default: app}) => {
+          //   console.log('app', app);
+
+          //   const run = new app({
+          //     calculatorProps: {
+          //       // Start Input Value for Calculator
+          //       // testing
+          //       // input: tests[1]
+          //       // USE this for final demo
+          //       input: '45+(1250*100)/10'
+          //     }
+          //   });
+          // })
+        },
+        style
+      });
+      // return app.label;
+    });
   }
 }
