@@ -1,2 +1,2 @@
 # Whimsyshire
-## Imagination of Your Creation
+Imagination of Your Creation

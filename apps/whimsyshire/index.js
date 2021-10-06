@@ -1,15 +1,21 @@
-import Spawn from '../Spawn/index.js';
+import Spawn from '../../Spawn/index.js';
 
 // console.log('Spawn', Spawn);
 
 
 const apps = [
   {
+    label: 'Test',
+    description: ' sjlfs f jasdlf jkasf lkdj',
+    path: '../test/index.js',
+    route: 'test'
+  },
+  {
     label: 'JS Calculator',
     description: ' sjlfs f jasdlf jkasf lkdj',
     path: '../js-calculator/index.js',
     events: {
-      click: () => import('../js-calculator/index.js').then(({default: app}) => {
+      click: () => import('../../js-calculator/index.js').then(({default: app}) => {
         console.log('app', app);
 
         const run = new app({
@@ -77,7 +83,7 @@ const apps = [
 
 export default class App {
   constructor(props) {
-    const { parentEl } = props;
+    const { route, parentEl } = props;
 
     const el = Spawn({
       children: Spawn({
@@ -126,28 +132,31 @@ export default class App {
       parentEl
     };
 
+
+    if (route) {
+      const app = apps.filter(app => app.route === route)[0];
+      this.handleLaunchApp(app);
+    }
+
+    console.log('App', this, props);
+
     return this;
   }
 
-  handleLaunchApp = (path) => {
-
+  handleLaunchApp = (props) => {
+    const { path, route } = props;
     import(path).then(({default: app}) => {
       // this.el = null;
 
       // clear existing
       this.state.parentEl.innerHTML = '';
+
       const run = new app({
-        calculatorProps: {
-          parentEl: this.state.parentEl,
-          // Start Input Value for Calculator
-          // testing
-          // input: tests[1]
-          // USE this for final demo
-          input: '45+(1250*100)/10'
-        }
+        parentEl: this.state.parentEl
       });
 
       console.log('handleLaunchApp', path, run, app, this);
+      window.location.hash = `!/${route}`;
 
       // ... seems to work....
     });
@@ -155,7 +164,9 @@ export default class App {
   }
 
   renderAppCards() {
-    return apps.map(({ label, description, events, path }, i) => {
+    return apps.map((props, i) => {
+      const { label, description, events, path } = props;
+
       let style = {
         background: '#3d3455',
         textAlign: 'center',
@@ -194,7 +205,7 @@ export default class App {
           })
         ],
         events: {
-          click: () => this.handleLaunchApp(path)
+          click: () => this.handleLaunchApp(props)
           // click: () => import(path).then(({default: app}) => {
           //   console.log('app', app);
 

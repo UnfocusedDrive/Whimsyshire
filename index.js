@@ -1,11 +1,26 @@
 // App Splash (Mountain)
-import App from './whimsyshire/index.js';
+import App from './apps/whimsyshire/index.js';
+
+function getRoute(hash) {
+  return hash.split('#!/')[1];
+}
+
+const hash = window.location.hash;
+const route = getRoute(hash);
 
 const run = new App({
-  parentEl: document.body
+  parentEl: document.body,
+  route
 });
 
-console.log('App', run);
+// console.log('App', route, hash);
+
+
+// hash.split('#!/');
+
+
+
+// debugger
 
 
 async function runMe() {
