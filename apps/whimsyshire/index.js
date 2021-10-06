@@ -14,22 +14,23 @@ const apps = [
     label: 'JS Calculator',
     description: ' sjlfs f jasdlf jkasf lkdj',
     path: '../js-calculator/index.js',
-    events: {
-      click: () => import('../../js-calculator/index.js').then(({default: app}) => {
-        console.log('app', app);
+    route: 'js-calculator'
+    // events: {
+    //   click: () => import('../../js-calculator/index.js').then(({default: app}) => {
+    //     console.log('app', app);
 
-        const run = new app({
-          calculatorProps: {
-            // Start Input Value for Calculator
-            // testing
-            // input: tests[1]
-            // USE this for final demo
-            input: '45+(1250*100)/10'
-          }
-        });
+    //     const run = new app({
+    //       calculatorProps: {
+    //         // Start Input Value for Calculator
+    //         // testing
+    //         // input: tests[1]
+    //         // USE this for final demo
+    //         input: '45+(1250*100)/10'
+    //       }
+    //     });
 
-      })
-    }
+    //   })
+    // }
   },
   {
     label: 'Kombat JS',
