@@ -1152,7 +1152,9 @@ class Calculator {
               width,
               height,
               cursor: 'pointer',
-              fontFamily: `'Roboto', sans-serif`
+              fontFamily: `'Roboto', sans-serif`,
+              // disable IOS dobule tap
+              touchAction: 'manipulation'
             },
             tag: 'button'
           };
