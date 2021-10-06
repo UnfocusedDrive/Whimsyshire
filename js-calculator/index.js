@@ -258,6 +258,10 @@ const _ = {
     return chunks;
   },
   getLabel: arr => {
+
+    // NOTE: Not quite there but .... almost....
+    // console.log('getLabel', arr);
+    return 'null';
     let label = '';
 
     for (item of arr) {
@@ -1442,14 +1446,16 @@ const runTests = () => {
   });
 }
 
-runTests();
+// runTests();
 
-const run = new App({
-  calculatorProps: {
-    // Start Input Value for Calculator
-    // testing
-    input: tests[1]
-    // USE this for final demo
-    // input: '45+(1250*100)/10'
-  }
-});
+// const run = new App({
+//   calculatorProps: {
+//     // Start Input Value for Calculator
+//     // testing
+//     input: tests[1]
+//     // USE this for final demo
+//     // input: '45+(1250*100)/10'
+//   }
+// });
+
+export default App;

@@ -1,3 +1,4 @@
+
 const CONSTANT = {
   // omdbhapi API Key for John Yagiz
   API_KEY: '2e35fbe6',
@@ -23,3 +24,9 @@ fetch(url).then(res => {
   debugger
 
 })
+
+// .....
+
+export default {
+  a: 'b'
+}
