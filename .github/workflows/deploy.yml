@@ -21,20 +21,19 @@ jobs:
       - name: Deploy App
         uses: appleboy/ssh-action@v0.1.4
         with:
+          username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
           key: ${{ secrets.SSH_KEY }}
-          username: ${{ secrets.SSH_USERNAME }}
           script: |
             cd /home/apps # go to app dir
-            rm -rf Whimsysshire/ # wipe out app for fresh build
-            git clone https://github.com/UnfocusedDrive/Whimsysshire.git # get latest
-            cd Whimsysshire # go to app dir
-            npm install # get latest packages
-            cd client # go to app client dir
-            npm install # get latest packages on client
-            npm run build # build app
-            rm -rf /var/www/whimsysshire.memoryleak.ai/ # remove directory
-            mkdir /var/www/whimsysshire.memoryleak.ai
-            sudo mv -i build/* /var/www/whimsysshire.memoryleak.ai/ # move build to serve dir
-            # git clone https://github.com/UnfocusedDrive/Whimsysshire.git
-            echo 'Successfully deployed to whimsysshire.memoryleak.ai'
+            rm -rf Whimsyshire/ # wipe out app for fresh build
+            git clone https://github.com/UnfocusedDrive/Whimsyshire.git # get latest
+            cd Whimsyshire # go to app dir
+            # npm install # get latest packages
+            # cd client # go to app client dir
+            # npm install # get latest packages on client
+            # npm run build # build app
+            rm -rf /var/www/whimsyshire.memoryleak.ai/ # remove directory
+            mkdir /var/www/whimsyshire.memoryleak.ai
+            sudo mv -i * /var/www/whimsyshire.memoryleak.ai/ # move build to serve dir
+            echo 'Successfully deployed to whimsyshire.memoryleak.ai'
