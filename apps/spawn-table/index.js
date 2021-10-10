@@ -18,22 +18,12 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
   constructor(props) {
     console.log('SpawnTable!', props);
     const { parentEl } = props;
-    // const el = Spawn({
-    //   className: 'spawn-table',
-    //   children: 'fetching data....',
-    //   style: {
-    //     padding: 20
-    //   },
-    //   parentEl
-    // });
 
     this.state = {
       el: this.mount(parentEl),
       parentEl
     };
 
-    // el.innerHTML = 'fetching data....';
-    // parentEl.appendChild(el);
     this.fetch();
   }
 
@@ -69,7 +59,6 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
       children: this.renderTableRows(rows),
       style: {
         background: 'rgb(0 0 0 / 15%)',
-        // border: '1px solid rgb(0 255 243 / 50%)',
         color: 'white',
         borderCollapse: 'collapse',
         borderRadius: 6,
