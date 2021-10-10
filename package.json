@@ -1,0 +1,22 @@
+{
+  "name": "whimsyshire",
+  "version": "1.0.0",
+  "description": "Imagine a world where everything you imagine becomes true. Is it science? Is it dreams? Where do ideas come from? Do they come falling from the sky and land in you head?",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnfocusedDrive/Whimsyshire.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UnfocusedDrive/Whimsyshire/issues"
+  },
+  "homepage": "https://github.com/UnfocusedDrive/Whimsyshire#readme",
+  "dependencies": {
+    "@nurvus/spawn": "git+https://github.com/UnfocusedDrive/Spawn.git#master"
+  }
+}
