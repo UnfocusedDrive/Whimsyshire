@@ -18,7 +18,12 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
   constructor(props) {
     console.log('SpawnTable!', props);
     const { parentEl } = props;
-    const el = document.createElement('div');
+    const el = Spawn({
+      className: 'spawn-table',
+      style: {
+        padding: 20
+      }
+    });
 
     this.state = {
       el,
@@ -48,7 +53,15 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
 
     el.appendChild(Spawn({
       tag: 'table',
-      children: this.renderTableRows(rows)
+      children: this.renderTableRows(rows),
+      style: {
+        background: 'rgb(0 0 0 / 15%)',
+        // border: '1px solid rgb(0 255 243 / 50%)',
+        color: 'white',
+        borderCollapse: 'collapse',
+        borderRadius: 6,
+        fontSize: 14
+      }
     }));
   }
 
@@ -57,7 +70,7 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
       const res = data.map((row, i) => {
         return {
           tag: 'tr',
-          children: this.renderTableRow(row)
+          children: this.renderTableRow(row, i)
         };
       });
 
@@ -69,14 +82,25 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
     return null;
   }
 
-  renderTableRow(data) {
+  renderTableRow(data, i) {
     console.log('renderTableRow', data);
+
+    let style = {
+      padding: 10
+    };
+    if (i) {
+      style = {
+        ...style,
+        background: i % 2 ? 'rgb(255 255 255 / 20%)' : '',
+      }
+    }
 
     if (data) {
       const res = Object.keys(data).map((key, i) => {
         return {
           tag: 'td',
-          children: data[key]
+          children: data[key],
+          style
         };
       });
 
