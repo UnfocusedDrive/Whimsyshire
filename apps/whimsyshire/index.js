@@ -28,6 +28,12 @@ const apps = [
   {
     label: 'Kombat JS',
     description: ' sjlfs f jasdlf jkasf lkdj'
+  },
+  {
+    label: 'Muck',
+    description: ' sjlfs f jasdlf jkasf lkdj',
+    path: '../muck/index.js',
+    route: 'muck'
   }
 ];
 
