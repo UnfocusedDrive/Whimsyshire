@@ -8,11 +8,9 @@ const CONSTANT = {
 };
 
 const value = 'cat';
-
-
 const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
 
-console.log('start', url);
+console.log('start', url);``
 
 
 
@@ -21,8 +19,6 @@ fetch(url).then(res => {
   return res.json();
 }).then(res => {
   console.log('res', res);
-  debugger
-
 })
 
 // .....

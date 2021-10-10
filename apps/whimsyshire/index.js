@@ -4,6 +4,8 @@ const CONSTANT = {
   SPACING: 30
 };
 
+
+
 const apps = [
   {
     label: 'Warp Gate',
@@ -29,20 +31,36 @@ const apps = [
   }
 ];
 
+/**
+ * Whimsyshire  App Launcher
+ */
 export default class App {
   constructor(props) {
     const { route, parentEl } = props;
 
+
+
+    const title = this.renderTitle();
+    console.log('title', title);
+
+    this.insertHelmet();
     const el = Spawn({
       children: Spawn({
         children: [
           Spawn({
             children: [
               Spawn({
-                children: 'Whimsyshire'
+                // children: 'Whimsyshire',
+                children: title,
+                style: {
+                  fontSize: 18
+                }
               }),
               Spawn({
-                children: 'Select app to open.'
+                children: 'Select app to open.',
+                style: {
+                  marginTop: 15
+                }
               })
             ]
           }),
@@ -74,7 +92,7 @@ export default class App {
       }
     });
     parentEl.appendChild(el);
-    parentEl.style.background = '#2c2541';
+    // parentEl.style.background = '#2c2541';
     // el.style.margin = '0 auto';
     // console.log('props', el, content, props);
 
@@ -92,6 +110,29 @@ export default class App {
     // console.log('App', this, props);
 
     return this;
+  }
+
+  insertHelmet() {
+    // Import External Fonts
+    [
+      'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
+      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap'
+    ].forEach(href => {
+      Spawn({
+        parentEl: document.head,
+        tag: 'link',
+        rel: 'stylesheet',
+        type: 'text/css',
+        href
+      });
+    });
+
+    // Custom App Styles
+    // from : https://www.eggradients.com/category/purple-gradient
+    document.body.style.backgroundColor = '#a4508b';
+    document.body.style.backgroundImage = 'linear-gradient(326deg, #a4508b 0%, #5f0a87 74%)';
+    document.body.style.fontFamily = `'Roboto', sans-serif`;
+    document.body.style.fontSize = 14;
   }
 
   handleLaunchApp = (props) => {
@@ -112,6 +153,34 @@ export default class App {
       // ... seems to work....
     });
 
+  }
+
+  renderTitle() {
+    const title = 'Whimsyshire';
+
+    // https://planetcalc.com/5799/
+    const colors = [
+      '#ff0000',
+      '#ff8000',
+      '#ffff00',
+      '#80ff00',
+      '#00ff00',
+      '#00ff80',
+      '#00ffff',
+      '#0080ff',
+      '#0000ff',
+      '#8000ff',
+      '#ff00ff'
+    ];
+
+    // TODO: Add animation to make it sparkle *insert sunglasses of cool here*
+    return title.split('').map((character, i) => Spawn({
+      tag: 'span',
+      children: character,
+      style: {
+        color: colors[i]
+      }
+    }))
   }
 
   renderAppCards() {
@@ -136,23 +205,45 @@ export default class App {
               width: '100%',
               border: 'none',
               borderRadius: 4,
-              padding: 4
+              padding: 4,
+              cursor: 'pointer'
+            },
+            events: {
+              mouseenter: (e, el) => {
+                el.style.background = '#0082ad'
+              },
+              mousedown: (e, el) => {
+                el.style.background = '#005c7a'
+              },
+              mouseup: (e, el) => {
+                el.style.background = '#0082ad'
+              },
+              mouseleave: (e, el) => {
+                el.style.background = '#00a7de'
+              }
             }
           })
         ],
         events: {
-          click: () => this.handleLaunchApp(props)
+          click: () => this.handleLaunchApp(props),
+          mouseenter: (e, el) => {
+            el.style.background = 'rgb(255 255 255 / 24%)'
+          },
+          mouseleave: (e, el) => {
+            el.style.background = 'rgb(255 255 255 / 12%)'
+          }
         },
         style: {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: '#3d3455',
+          background: 'rgb(255 255 255 / 12%)',
           textAlign: 'center',
           borderRadius: 4,
           padding: 10,
           color: 'white',
-          width: 200
+          width: 200,
+          transition: 'all 0.3s ease'
         }
       });
     });

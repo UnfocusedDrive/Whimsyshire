@@ -114,7 +114,7 @@ const _ = {
   const el = document.createElement(tag);
 
   const appendChildren = (children) => {
-    console.log('appendChildren', children, el);
+    // console.log('appendChildren', children, el);
     // convert to array
     let fmChildren = children;
     if (!Array.isArray(fmChildren)) {
