@@ -29,10 +29,6 @@ jobs:
             rm -rf Whimsyshire/ # wipe out app for fresh build
             git clone https://github.com/UnfocusedDrive/Whimsyshire.git # get latest
             cd Whimsyshire # go to app dir
-            # npm install # get latest packages
-            # cd client # go to app client dir
-            # npm install # get latest packages on client
-            # npm run build # build app
             rm -rf /var/www/whimsyshire.memoryleak.ai/ # remove directory
             mkdir /var/www/whimsyshire.memoryleak.ai
             sudo mv -i * /var/www/whimsyshire.memoryleak.ai/ # move build to serve dir
