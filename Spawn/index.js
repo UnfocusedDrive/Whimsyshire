@@ -85,6 +85,10 @@ const _ = {
     children = [],
     className,
     events,
+    /**
+     * @param {element}
+     * If provided, will mount to the parent
+     */
     parentEl,
     name,
     label,
