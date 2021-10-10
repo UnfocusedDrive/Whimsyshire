@@ -1,86 +1,33 @@
 import Spawn from '../../Spawn/index.js';
 
-// console.log('Spawn', Spawn);
-
+const CONSTANT = {
+  SPACING: 30
+};
 
 const apps = [
   {
-    label: 'Test',
-    description: ' sjlfs f jasdlf jkasf lkdj',
-    path: '../test/index.js',
-    route: 'test'
+    label: 'Warp Gate',
+    description: 'Sample App Template',
+    path: '../warp-gate/index.js',
+    route: 'warp-gate'
+  },
+  {
+    label: 'Spawn Table',
+    description: 'Using Spawn Engine with sample APIs.',
+    path: '../spawn-table/index.js',
+    route: 'spawn-table'
   },
   {
     label: 'JS Calculator',
     description: ' sjlfs f jasdlf jkasf lkdj',
     path: '../js-calculator/index.js',
     route: 'js-calculator'
-    // events: {
-    //   click: () => import('../../js-calculator/index.js').then(({default: app}) => {
-    //     console.log('app', app);
-
-    //     const run = new app({
-    //       calculatorProps: {
-    //         // Start Input Value for Calculator
-    //         // testing
-    //         // input: tests[1]
-    //         // USE this for final demo
-    //         input: '45+(1250*100)/10'
-    //       }
-    //     });
-
-    //   })
-    // }
   },
   {
     label: 'Kombat JS',
     description: ' sjlfs f jasdlf jkasf lkdj'
   }
 ];
-
-// const appCards = apps.map(({ label, description, events }, i) => {
-//   let style = {
-//     background: '#3d3455',
-//     textAlign: 'center',
-//     borderRadius: 4,
-//     padding: 10,
-//     color: 'white'
-//   };
-
-//   if (i) {
-//     style = {
-//       ...style,
-//       marginLeft: 20
-//     };
-//   }
-
-//   return Spawn({
-//     children: [
-//       Spawn({
-//         children: label
-//       }),
-//       Spawn({
-//         children: description
-//       }),
-//       Spawn({
-//         tag: 'button',
-//         children: 'Open',
-//         style: {
-//           marginTop: 15,
-//           background: '#00a7de',
-//           color: 'white',
-//           width: '100%',
-//           border: 'none',
-//           borderRadius: 4,
-//           padding: 4
-//         }
-//       })
-//     ],
-//     events,
-//     style
-//   });
-//   // return app.label;
-// })
 
 export default class App {
   constructor(props) {
@@ -101,10 +48,13 @@ export default class App {
           }),
           Spawn({
             children: this.renderAppCards(),
-            className: 'cards',
+            className: 'cards-container',
             style: {
               display: 'flex',
-              marginTop: 20
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              marginTop: CONSTANT.SPACING,
+              gap: CONSTANT.SPACING
             }
           })
         ],
@@ -139,7 +89,7 @@ export default class App {
       this.handleLaunchApp(app);
     }
 
-    console.log('App', this, props);
+    // console.log('App', this, props);
 
     return this;
   }
@@ -156,7 +106,7 @@ export default class App {
         parentEl: this.state.parentEl
       });
 
-      console.log('handleLaunchApp', path, run, app, this);
+      // console.log('handleLaunchApp', path, run, app, this);
       window.location.hash = `!/${route}`;
 
       // ... seems to work....
@@ -167,21 +117,6 @@ export default class App {
   renderAppCards() {
     return apps.map((props, i) => {
       const { label, description, events, path } = props;
-
-      let style = {
-        background: '#3d3455',
-        textAlign: 'center',
-        borderRadius: 4,
-        padding: 10,
-        color: 'white'
-      };
-
-      if (i) {
-        style = {
-          ...style,
-          marginLeft: 20
-        };
-      }
 
       return Spawn({
         children: [
@@ -207,23 +142,19 @@ export default class App {
         ],
         events: {
           click: () => this.handleLaunchApp(props)
-          // click: () => import(path).then(({default: app}) => {
-          //   console.log('app', app);
-
-          //   const run = new app({
-          //     calculatorProps: {
-          //       // Start Input Value for Calculator
-          //       // testing
-          //       // input: tests[1]
-          //       // USE this for final demo
-          //       input: '45+(1250*100)/10'
-          //     }
-          //   });
-          // })
         },
-        style
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          background: '#3d3455',
+          textAlign: 'center',
+          borderRadius: 4,
+          padding: 10,
+          color: 'white',
+          width: 200
+        }
       });
-      // return app.label;
     });
   }
 }

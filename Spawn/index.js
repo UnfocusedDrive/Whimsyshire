@@ -1,5 +1,6 @@
 // Common Util
 const _ = {
+  // toArr: value =>
   camel2Kebab: str => str.split('').map(s => s === s.toUpperCase() ? `-${s.toLowerCase()}` : s).join(''),
   /**
    * Split input into array of even sized chunks
@@ -102,7 +103,9 @@ const _ = {
 
 
   // Text node
-  if (typeof props === 'string') return document.createTextNode(props);
+  if (typeof props === 'string' || typeof props === 'number') {
+    return document.createTextNode(props);
+  }
   // Already DOM Element
   if (props instanceof HTMLElement) return props;
 
@@ -111,6 +114,7 @@ const _ = {
   const el = document.createElement(tag);
 
   const appendChildren = (children) => {
+    console.log('appendChildren', children, el);
     // convert to array
     let fmChildren = children;
     if (!Array.isArray(fmChildren)) {
@@ -120,31 +124,8 @@ const _ = {
     // each child...
     fmChildren.forEach(child => {
       el.appendChild(Spawn(child));
-
-
-//       let fmChild;
-
-
-
-//       // Txt node
-//       if ((typeof child === 'string' || typeof child === 'number')) {
-//         fmChild = document.createTextNode(child);
-//       } else {
-//         fmChild = Spawn();
-//       }
-
-//       console.log('child', fmChild, child);
-
-
-// //       console.log('child', child, _.isNode(child));
-// //       if (child === 0) {
-// //         debugger
-// //       }
-
-//       el.appendChild(fmChild);
     });
   }
-
 
   // Attach Event Listeners
   // Assign {event} and {el} (self)
