@@ -8,9 +8,6 @@ const CONSTANT = {
   BACKGROUND_COLOR: '#f0f2f5'
 };
 
-const value = 'cat';
-const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
-
 /**
  * Spawn Table
  */
@@ -24,7 +21,10 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
       parentEl
     };
 
-    this.fetch();
+
+    const value = 'cat';
+    const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
+    this.fetch(url);
   }
 
   mount(parentEl) {
@@ -38,14 +38,10 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
     });
   }
 
-  fetch() {
+  fetch(url) {
     fetch(url).then(res => {
-      console.log('res', res);
       return res.json();
     }).then(res => {
-      console.log('res', res);
-
-
       this.renderTable(res.Search);
     });
   }
@@ -54,6 +50,17 @@ const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
     const { el } = this.state;
     el.innerHTML = '';
 
+    const value = 'hat';
+    const url = `${CONSTANT.API_URL}?apikey=${CONSTANT.API_KEY}&s=${value}&page=1`;
+    el.appendChild(Spawn({
+      tag: 'button',
+      children: 'Respawn',
+      events: {
+        click: () => this.fetch(url)
+      }
+    }));
+
+    // Insert Table
     el.appendChild(Spawn({
       tag: 'table',
       children: this.renderTableRows(rows),

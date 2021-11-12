@@ -1,10 +1,9 @@
 import Spawn from '../../Spawn/index.js';
+import apps from './apps.json';
 
 const CONSTANT = {
   SPACING: 30
 };
-
-
 
 const apps = [
   {
@@ -43,11 +42,7 @@ const apps = [
 export default class App {
   constructor(props) {
     const { route, parentEl } = props;
-
-
-
     const title = this.renderTitle();
-    console.log('title', title);
 
     this.insertHelmet();
     const el = Spawn({
@@ -56,7 +51,6 @@ export default class App {
           Spawn({
             children: [
               Spawn({
-                // children: 'Whimsyshire',
                 children: title,
                 style: {
                   fontSize: 18
