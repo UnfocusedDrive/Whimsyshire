@@ -42,7 +42,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Warp Gate',
+      title: 'whimsyshire',
     }),
     new CleanWebpackPlugin()
   ]

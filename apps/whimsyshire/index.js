@@ -1,5 +1,5 @@
 import Spawn from '../../Spawn/index.js';
-import apps from './apps.json';
+// import apps from './apps.json';
 
 const CONSTANT = {
   SPACING: 30
