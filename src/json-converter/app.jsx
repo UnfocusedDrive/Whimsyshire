@@ -14,10 +14,18 @@ require('codemirror/mode/xml/xml');
 require('codemirror/mode/javascript/javascript');
 
 import JSONConverter from './js-to-json.js';
+import CSVToJSON from './csv-to-json.js';
 
-export default function App ({ source }) {
+export default function App ({ source, type }) {
   const [sourceStr, setSourceStr] = React.useState(source);
-  const transform = JSONConverter.get(sourceStr);
+
+  let transform;
+  if (type === 'csv') {
+    transform = CSVToJSON.get(sourceStr);
+  } else {
+  transform = JSONConverter.get(sourceStr);
+
+  }
 
   return (
     <Layout style={{ padding: 20 }}>

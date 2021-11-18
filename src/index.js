@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom';
 import App from './json-converter/app.jsx';
 import FinanceApp from './finance/app.jsx';
 import Data from './data/data.json';
-import LocalData from './data/shhh.json';
+import LocalData from './data/local/shhh.json';
+import CSV from './data/local/csv.js';
 
 
-const finance = <FinanceApp data={ LocalData } />;
+// const finance = <FinanceApp data={ LocalData } />;
 
 
 
@@ -46,8 +47,8 @@ const test = `[
 
 
 
-
-const converter = <App source={ test } />;
+const converter = <App type="csv" source={ CSV } />;
+// const converter = <App source={ test } />;
 
 ReactDOM.render(
   converter,
