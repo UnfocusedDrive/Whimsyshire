@@ -20,12 +20,15 @@ export default function App ({ source, type }) {
   const [sourceStr, setSourceStr] = React.useState(source);
 
   let transform;
+  let data;
   if (type === 'csv') {
-    transform = CSVToJSON.get(sourceStr);
+    data = CSVToJSON.get(sourceStr);
+    transform = data.json;
   } else {
-  transform = JSONConverter.get(sourceStr);
-
+    transform = JSONConverter.get(sourceStr);
   }
+
+  console.log('App', {transform, data, source, type});
 
   return (
     <Layout style={{ padding: 20 }}>

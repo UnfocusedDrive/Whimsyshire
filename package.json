@@ -1,8 +1,8 @@
 {
-  "name": "whimsyshire",
+  "name": "Whimsyshire",
   "version": "0.0.0-alpha.0",
   "description": "Imagine a world where everything you imagine becomes true. Is it science? Is it dreams? Where do ideas come from? Do they come falling from the sky and land in you head?",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "webpack --mode=production",
     "start": "webpack serve --mode=development --open",
@@ -13,14 +13,16 @@
     "watch": "webpack --watch"
   },
   "dependencies": {
-    "@nurvus/spawn": "git+https://github.com/UnfocusedDrive/Spawn.git#master",
-    "@nurvus/ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
+    "@unfocused/kombatjs": "git+https://github.com/UnfocusedDrive/kombatjs.git#main",
+    "@unfocused/spawn": "git+https://github.com/UnfocusedDrive/Spawn.git#master",
+    "@unfocused/nurvus-ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
     "classnames": "^2.3.1",
     "codemirror": "^5.63.3",
     "lodash": "^4.17.20",
     "react": "^16.8.0",
     "react-codemirror2": "^7.2.1",
-    "react-dom": "^16.8.0"
+    "react-dom": "^16.8.0",
+    "recharts": "^2.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
