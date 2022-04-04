@@ -1,7 +1,7 @@
 {
   "name": "Whimsyshire",
-  "version": "0.0.0-alpha.0",
   "description": "Imagine a world where everything you imagine becomes true. Is it science? Is it dreams? Where do ideas come from? Do they come falling from the sky and land in you head?",
+  "version": "0.0.0-alpha.0",
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --mode=production",
