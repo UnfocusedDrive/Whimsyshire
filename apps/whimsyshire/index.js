@@ -1,6 +1,9 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import Spawn, { Mount, Respawn } from "@unfocused/spawn";
 import KombatJSApp from "@unfocused/kombatjs/lib/index.js";
 import TestApp from "../test-app";
+import TextDiff from '../text-diff';
 
 const CONSTANT = {
   SPACING: 30
@@ -8,6 +11,7 @@ const CONSTANT = {
 
 
 const apps = [
+  // IMG SLICER....
   // {
   //   label: 'Warp Gate',
   //   description: 'Sample App Template',
@@ -39,6 +43,14 @@ const apps = [
     module: TestApp
     // path: `${APP_PATH}muck/index.js`,
     // route: 'muck'
+  },
+  {
+    label: 'Text Diff',
+    description: ' sjlfs f jasdlf jkasf lkdj',
+    id: 'text-diff',
+    module: TestApp
+    // path: `${APP_PATH}muck/index.js`,
+    // route: 'muck'
   }
 ];
 
@@ -47,7 +59,7 @@ const apps = [
  * Whimsyshire App Launcher
  */
  export default class App {
-  constructor() {
+  constructor(props = {}) {
     this.insertHelmet();
     this.el = this.render();
     this.subView = null;
@@ -56,11 +68,20 @@ const apps = [
   }
 
   handleLaunchApp = (props) => {
-    const { module } = props;
+    const { id, module } = props;
     this.el = Respawn(this.el, Spawn());
-    this.subView = new module({
-      mountEl: this.el
-    });
+    switch (id) {
+      case 'text-diff':
+        ReactDOM.render(<TextDiff />, this.el)
+        break;
+      default:
+        this.subView = new module({
+          mountEl: this.el
+        });
+    }
+
+
+
   }
 
   renderTitle() {
