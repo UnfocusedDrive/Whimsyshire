@@ -9,7 +9,6 @@ const CONSTANT = {
   SPACING: 30
 };
 
-
 const apps = [
   // IMG SLICER....
   // {
@@ -54,15 +53,22 @@ const apps = [
   }
 ];
 
-
 /**
  * Whimsyshire App Launcher
  */
  export default class App {
-  constructor(props = {}) {
+  constructor() {
     this.insertHelmet();
+    this.cards = this.renderAppCards();
     this.el = this.render();
     this.subView = null;
+
+      this.cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.style.opacity = 1;
+          card.style.top = 0;
+        }, 100 * i);
+      });
 
     return this;
   }
@@ -79,9 +85,29 @@ const apps = [
           mountEl: this.el
         });
     }
+  }
 
+  insertHelmet() {
+    // Import External Fonts
+    [
+      'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
+      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap'
+    ].forEach(href => {
+      Spawn({
+        parentEl: document.head,
+        tag: 'link',
+        rel: 'stylesheet',
+        type: 'text/css',
+        href
+      });
+    });
 
-
+    // Custom App Styles
+    // from : https://www.eggradients.com/category/purple-gradient
+    document.body.style.backgroundColor = '#a4508b';
+    document.body.style.backgroundImage = 'linear-gradient(326deg, #a4508b 0%, #5f0a87 74%)';
+    document.body.style.fontFamily = `'Roboto', sans-serif`;
+    document.body.style.fontSize = 14;
   }
 
   renderTitle() {
@@ -114,7 +140,14 @@ const apps = [
 
   renderAppCards() {
     return apps.map((props, i) => {
-      const { label, description, events, path } = props;
+      const { label, description } = props;
+
+      let top;
+      if (i % 2 === 0) {
+        top = -800;
+      } else {
+        top = 800;
+      }
 
       return Spawn({
         children: [
@@ -163,6 +196,9 @@ const apps = [
           }
         },
         style: {
+          position: 'relative',
+          opacity: 0,
+          top,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -199,7 +235,7 @@ const apps = [
             ]
           }),
           Spawn({
-            children: this.renderAppCards(),
+            children: this.cards,
             className: 'cards-container',
             style: {
               display: 'flex',
@@ -224,28 +260,5 @@ const apps = [
         height: '100%'
       }
     });
-  }
-
-  insertHelmet() {
-    // Import External Fonts
-    [
-      'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap',
-      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=MonteCarlo&family=Style+Script&display=swap'
-    ].forEach(href => {
-      Spawn({
-        parentEl: document.head,
-        tag: 'link',
-        rel: 'stylesheet',
-        type: 'text/css',
-        href
-      });
-    });
-
-    // Custom App Styles
-    // from : https://www.eggradients.com/category/purple-gradient
-    document.body.style.backgroundColor = '#a4508b';
-    document.body.style.backgroundImage = 'linear-gradient(326deg, #a4508b 0%, #5f0a87 74%)';
-    document.body.style.fontFamily = `'Roboto', sans-serif`;
-    document.body.style.fontSize = 14;
   }
  }
