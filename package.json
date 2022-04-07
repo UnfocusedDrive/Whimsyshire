@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@unfocused/kombatjs": "git+https://github.com/UnfocusedDrive/kombatjs.git#main",
+    "@unfocused/js-calculator": "git+https://github.com/UnfocusedDrive/js-calculator.git#master",
     "@unfocused/spawn": "git+https://github.com/UnfocusedDrive/Spawn.git#master",
     "@unfocused/nurvus-ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
     "classnames": "^2.3.1",

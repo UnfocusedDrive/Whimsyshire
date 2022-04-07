@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Spawn, { Mount, Respawn } from "@unfocused/spawn";
 import KombatJSApp from "@unfocused/kombatjs/lib/index.js";
+import JSCalculator from "@unfocused/js-calculator";
 import TestApp from "../test-app";
 import TextDiff from '../text-diff';
 
@@ -29,6 +30,12 @@ const apps = [
   //   path: `${APP_PATH}js-calculator/index.js`,
   //   route: 'js-calculator'
   // },
+  {
+    label: 'JS Calculator',
+    description: 'Show me the numbers!',
+    id: 'js-calculator',
+    module: JSCalculator
+  },
    {
     label: 'Kombat JS',
     description: 'Prepare for Kombat.',
@@ -80,6 +87,11 @@ const apps = [
       case 'text-diff':
         ReactDOM.render(<TextDiff />, this.el)
         break;
+        case 'js-calculator':
+          this.subView = new module({
+            parentEl: this.el
+          });
+          break;
       default:
         this.subView = new module({
           mountEl: this.el
