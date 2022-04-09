@@ -30,7 +30,7 @@ jobs:
             git clone https://github.com/UnfocusedDrive/Whimsyshire.git # get latest
             cd Whimsyshire # go to app dir
             npm install
-            rm -rf /var/www/whimsyshire.memoryleak.ai/ # remove directory
-            mkdir /var/www/whimsyshire.memoryleak.ai
-            sudo mv -i * /var/www/whimsyshire.memoryleak.ai/ # move build to serve dir
-            echo 'Successfully deployed to whimsyshire.memoryleak.ai'
+            rm -rf /var/www/unstable.memoryleak.ai/whimsyshire/ # remove dir
+            mkdir /var/www/unstable.memoryleak.ai/whimsyshire/ # rebuild dir
+            sudo mv -i dist/* /var/www/unstable.memoryleak.ai/whimsyshire/ # move build to serve dir
+            echo 'Successfully deployed to unstable.memoryleak.ai/whimsyshire/'
