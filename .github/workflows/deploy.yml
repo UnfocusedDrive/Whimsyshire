@@ -29,7 +29,8 @@ jobs:
             rm -rf Whimsyshire/ # wipe out app for fresh build
             git clone https://github.com/UnfocusedDrive/Whimsyshire.git # get latest
             cd Whimsyshire # go to app dir
-            npm install
+            npm install # install it
+            npm run build # build it
             rm -rf /var/www/unstable.memoryleak.ai/whimsyshire/ # remove dir
             mkdir /var/www/unstable.memoryleak.ai/whimsyshire/ # rebuild dir
             sudo mv -i dist/* /var/www/unstable.memoryleak.ai/whimsyshire/ # move build to serve dir

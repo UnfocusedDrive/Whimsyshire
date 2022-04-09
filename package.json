@@ -7,9 +7,6 @@
     "build": "webpack --mode=production",
     "start": "webpack serve --mode=development --open",
     "start:production": "webpack serve --mode=production --open",
-    "start-styleguide": "webpack serve --config styleguide/webpack.config.js",
-    "styleguide": "styleguidist server --open",
-    "styleguide:build": "styleguidist build",
     "watch": "webpack --watch"
   },
   "dependencies": {
