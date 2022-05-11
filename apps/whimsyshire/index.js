@@ -44,7 +44,7 @@ const apps = [
   },
   {
     label: 'Test App',
-    description: ' sjlfs f jasdlf jkasf lkdj',
+    description: 'What are we testing about?',
     id: 'test-app',
     module: TestApp
     // path: `${APP_PATH}muck/index.js`,
@@ -52,7 +52,7 @@ const apps = [
   },
   {
     label: 'Text Diff',
-    description: ' sjlfs f jasdlf jkasf lkdj',
+    description: 'I don\'t see the difference.',
     id: 'text-diff',
     module: TestApp
     // path: `${APP_PATH}muck/index.js`,
