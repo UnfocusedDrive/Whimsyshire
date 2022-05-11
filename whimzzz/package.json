@@ -1,33 +1,26 @@
 {
-  "name": "@unfocused/warp-gate",
-  "description": "Rapidly deploy modern web apps.",
+  "name": "@unfocused/whimsyshire",
+  "description": "Imagine a world where everything you imagine becomes true. Is it science? Is it dreams? Where do ideas come from? Do they come falling from the sky and land in you head?",
   "version": "0.0.0-alpha.0",
-  "private": true,
-  "main": "lib/index.js",
-  "files": [
-    "dist",
-    "lib",
-    "src"
-  ],
+  "main": "src/index.js",
   "scripts": {
-    "build": "npm run build-standalone && npm run build-lib",
-    "build-standalone": "webpack --mode=production",
-    "build-lib": "webpack --mode=production --config webpack.lib.config.js",
-    "prepare": "npm run build",
+    "build": "webpack --mode=production",
     "start": "webpack serve --mode=development --open",
     "start:production": "webpack serve --mode=production --open",
-    "start-styleguide": "webpack serve --config styleguide/webpack.config.js",
-    "styleguide": "styleguidist server --open",
-    "styleguide:build": "styleguidist build",
     "watch": "webpack --watch"
   },
   "dependencies": {
-    "@unfocused/nurvus-ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
+    "@unfocused/kombatjs": "git+https://github.com/UnfocusedDrive/kombatjs.git#main",
+    "@unfocused/js-calculator": "git+https://github.com/UnfocusedDrive/js-calculator.git#master",
     "@unfocused/spawn": "git+https://github.com/UnfocusedDrive/Spawn.git#master",
+    "@unfocused/nurvus-ui": "git+https://github.com/UnfocusedDrive/nurvus-design-system.git#main",
     "classnames": "^2.3.1",
+    "codemirror": "^5.63.3",
     "lodash": "^4.17.20",
     "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react-codemirror2": "^7.2.1",
+    "react-dom": "^16.8.0",
+    "recharts": "^2.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
@@ -35,7 +28,6 @@
     "@babel/plugin-syntax-export-default-from": "^7.14.5",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.1",
-    "@babel/preset-typescript": "^7.16.7",
     "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^5.0.0",
@@ -46,22 +38,19 @@
     "sass": "^1.27.0",
     "sass-loader": "^10.0.4",
     "style-loader": "^2.0.0",
-    "ts-loader": "^9.2.8",
-    "typescript": "^4.6.3",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.0.0",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-merge": "^5.8.0"
+    "webpack-dev-server": "^3.11.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UnfocusedDrive/warp-gate.git"
+    "url": "git+https://github.com/UnfocusedDrive/Whimsyshire.git"
   },
   "keywords": [],
   "author": "",
-  "license": "MIT",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/UnfocusedDrive/warp-gate/issues"
+    "url": "https://github.com/UnfocusedDrive/Whimsyshire/issues"
   },
-  "homepage": "https://github.com/UnfocusedDrive/warp-gate#readme"
+  "homepage": "https://github.com/UnfocusedDrive/Whimsyshire#readme"
 }

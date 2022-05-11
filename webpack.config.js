@@ -1,49 +1,25 @@
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+/**
+ * Webpack Prod Config (Standalone App)
+ */
+
+const commonConfig = require('./webpack.common.config');
+const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-module.exports = {
+module.exports = merge(commonConfig, {
   devServer: {
     contentBase: './dist',
   },
-  entry: './src/index.js',
+  entry: './src/index.tsx',
+  devtool: 'inline-source-map',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
-  module: {
-    rules: [
-      {
-        test: /\.js$|\.jsx$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader"
-        }
-      },
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
-          "style-loader",
-          "css-loader",
-          "sass-loader"
-        ],
-      },
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: [
-          'file-loader'
-        ]
-      }
-    ]
-  },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'whimsyshire',
-    }),
-    new CleanWebpackPlugin()
+      title: 'Warp Gate'
+    })
   ]
-};
+});
