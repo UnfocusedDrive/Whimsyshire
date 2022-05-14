@@ -70,12 +70,13 @@ const apps = [
     this.el = this.render();
     this.subView = null;
 
-      this.cards.forEach((card, i) => {
-        setTimeout(() => {
-          card.style.opacity = 1;
-          card.style.top = 0;
-        }, 100 * i);
-      });
+    // Card Load animation (staggered)
+    this.cards.forEach((card, i) => {
+      setTimeout(() => {
+        card.style.opacity = 1;
+        card.style.top = 0;
+      }, 100 * i);
+    });
 
     return this;
   }
@@ -150,6 +151,10 @@ const apps = [
     }))
   }
 
+  /**
+   * Render App Cards
+   * @returns {HTMLElement} of App Cards
+   */
   renderAppCards() {
     return apps.map((props, i) => {
       const { label, description } = props;
@@ -167,7 +172,12 @@ const apps = [
             children: label
           }),
           Spawn({
-            children: description
+            children: description,
+            style: {
+              marginTop: 10,
+              fontSize: 12,
+              color: '#31fb40'
+            }
           }),
           Spawn({
             tag: 'button',
@@ -183,6 +193,7 @@ const apps = [
               cursor: 'pointer'
             },
             events: {
+              click: () => this.handleLaunchApp(props),
               mouseenter: (e, el) => {
                 el.style.background = '#0082ad'
               },
@@ -199,7 +210,6 @@ const apps = [
           })
         ],
         events: {
-          click: () => this.handleLaunchApp(props),
           mouseenter: (e, el) => {
             el.style.background = 'rgb(255 255 255 / 24%)'
           },
@@ -220,7 +230,7 @@ const apps = [
           padding: 10,
           color: 'white',
           width: 200,
-          transition: 'all 0.3s ease'
+          transition: 'all 0.8s cubic-bezier(0, 0.01, 0, 1.04) 0s'
         }
       });
     });
